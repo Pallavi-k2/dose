@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Half-Life</title>
+<meta name="description" content="Half-Life — a caffeine clock watch interface. Log a coffee, watch it pour in and decay.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --page: #050608;
+    --grid-dot: rgba(255,255,255,.09);
+    --crema: #e8b27a;
+    --warn: #ff8a5c;
+  }
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    background: var(--page);
+    background-image: radial-gradient(var(--grid-dot) 1px, transparent 1.2px);
+    background-size: 14px 14px;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    color: #fff;
+    display: grid;
+    place-items: center;
+    padding: 24px 16px;
+    -webkit-font-smoothing: antialiased;
+  }
+  body.embed { background: transparent; padding: 8px; }
+
+  .stack { position: relative; width: min(380px, 100%); padding-top: 13%; container-type: inline-size; }
+  .peek {
+    position: absolute; left: 50%;
+    border-radius: 6cqw 6cqw 0 0;
+    font-weight: 800; font-size: 6cqw; padding: 2.4cqw 5cqw;
+    transition: transform .45s cubic-bezier(.2,.8,.2,1);
+    user-select: none;
+  }
+  .peek.back { top: 0; width: 74%; height: 20cqw; transform: translateX(-50%) rotate(-1.2deg);
+    background: linear-gradient(90deg,#1f6f6a,#38a89a 45%,#1d5a63); }
+  .peek.front { top: 5cqw; width: 88%; height: 20cqw; transform: translateX(-50%) rotate(1.4deg);
+    background: linear-gradient(90deg,#5b3bd6,#7d4fe0 55%,#a165e8); }
+  .stack:hover .peek.back { transform: translateX(-50%) translateY(-1.5cqw) rotate(-2deg); }
+  .stack:hover .peek.front { transform: translateX(-50%) translateY(-.8cqw) rotate(2deg); }
+
+  .card {
+    --c1:#03051a; --c2:#0b1a78; --c3:#2453e0; --c4:#7d95ec; --c5:#b7a3ea;
+    position: relative;
+    aspect-ratio: 530 / 840;
+    border-radius: 7cqw;
+    overflow: hidden;
+    isolation: isolate;
+    background: radial-gradient(ellipse 62% 58% at 50% 48%, var(--c1) 26%, var(--c2) 48%, var(--c3) 72%, var(--c4) 90%, var(--c5) 100%);
+    box-shadow: 0 2cqw 8cqw color-mix(in srgb, var(--c3) 30%, transparent);
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .card::after {
+    content: ""; position: absolute; inset: 0; z-index: -1; opacity: .07; pointer-events: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  }
+
+  .title { position: absolute; left: 7cqw; top: 6cqw; font-weight: 800; font-size: 7.6cqw; line-height: 1.02; letter-spacing: -.02em; }
+  .title span { display: block; color: rgba(255,255,255,.55); }
+  .sleep .val.soft { color: rgba(255,255,255,.55); }
+
+  .sleep { position: absolute; right: 7cqw; top: 6.6cqw; text-align: right; }
+  .sleep .lbl { font-size: 2.7cqw; font-weight: 600; letter-spacing: .12em; color: rgba(255,255,255,.6); text-transform: uppercase; }
+  .sleep .val { font-size: 6.4cqw; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; display: inline-block; font-variant-numeric: tabular-nums; }
+  .sleep .moon { display: inline-block; width: 1.6cqw; height: 1.6cqw; border-radius: 50%; box-shadow: -.5cqw .2cqw 0 0 #fff; transform: translateY(-.3cqw); margin-right: 1cqw; }
+
+  .unit { position: absolute; top: 22cqw; left: 0; right: 0; text-align: center; font-size: 4cqw; font-weight: 500; color: rgba(255,255,255,.65); letter-spacing: .06em; }
+  .digits { position: absolute; top: 28cqw; left: 50%; transform: translateX(-50%); width: 42cqw; }
+  .digits svg { width: 100%; display: block; overflow: visible; }
+  .digits circle { fill: #fff; transition: opacity .22s; }
+  .card.over .digits circle { fill: #ffd2bd; }
+  .bump { position: absolute; top: 25cqw; left: 72%; font-size: 3.6cqw; font-weight: 700; color: var(--crema); pointer-events: none; white-space: nowrap; }
+
+  .dial-wrap { position: absolute; top: 48cqw; left: 50%; transform: translateX(-50%); width: 62cqw; aspect-ratio: 1; }
+  .disc {
+    position: absolute; inset: 12%; border-radius: 50%;
+    --a: 0;
+    background: conic-gradient(from calc(var(--a) * 1deg),
+      #8e9bb0 0deg, #b9c3d1 calc((360 - var(--a)) * .5deg), #f4f7fb calc((360 - var(--a)) * .96deg), #ffffff 360deg);
+    box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 3cqw 10cqw rgba(0,0,30,.55), inset 0 0 5cqw rgba(0,0,30,.22);
+  }
+  .fx { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+  .ring { stroke: rgba(255,255,255,.35); transition: stroke .4s; }
+  .card.over .ring { stroke: var(--warn); animation: pulse 1.1s ease-in-out infinite; }
+  @keyframes pulse { 50% { stroke-opacity: .35; } }
+  .tick { position: absolute; font-size: 3cqw; font-weight: 500; color: rgba(255,255,255,.6); transform: translate(-50%,-50%); font-variant-numeric: tabular-nums; }
+
+  .chips { position: absolute; top: 113cqw; left: 0; right: 0; display: flex; justify-content: center; gap: 1.6cqw; }
+  .chip {
+    font: 600 3.1cqw/1 Inter, system-ui, sans-serif; color: #fff;
+    padding: 1.7cqw 2.5cqw; border-radius: 99px; border: 1px solid rgba(255,255,255,.28);
+    background: rgba(255,255,255,.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    cursor: pointer; transition: transform .2s cubic-bezier(.2,.9,.3,1.4), background .2s, border-color .2s;
+  }
+  .chip:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.5); }
+  .chip:active { transform: scale(.92); }
+  .chip:focus-visible { outline: .6cqw solid var(--crema); outline-offset: .4cqw; }
+
+  .timeline { position: absolute; left: 0; right: 0; bottom: 3.5cqw; height: 31cqw; touch-action: none; cursor: ew-resize; outline: none; }
+  .timeline svg { position: absolute; top: 0; left: 0; width: 100%; height: auto; overflow: visible; }
+  .timeline:focus-visible .playline { stroke: var(--crema); }
+  .marker { cursor: pointer; pointer-events: all; }
+  .labels { position: absolute; left: 3cqw; right: 3cqw; bottom: 0; display: flex; justify-content: space-between; font-size: 3.3cqw; color: rgba(255,255,255,.8); font-weight: 500; text-shadow: 0 0 2cqw rgba(0,0,40,.35); }
+  .time-tag { position: absolute; transform: translate(-50%, -160%); font-size: 3cqw; font-weight: 600; background: rgba(0,0,0,.35); padding: .6cqw 1.6cqw; border-radius: 99px; pointer-events: none; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .time-tag i { display: inline-block; width: 1.3cqw; height: 1.3cqw; border-radius: 50%; background: #7dffa8; margin-right: 1cqw; vertical-align: .15cqw; animation: blink 1.6s ease-in-out infinite; }
+  .time-tag.paused i { background: rgba(255,255,255,.5); animation: none; }
+  @keyframes blink { 50% { opacity: .25; } }
+  .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
+</style>
+</head>
+<body>
+  <div class="stack">
+    <div class="peek back" aria-hidden="true"></div>
+    <div class="peek front" aria-hidden="true">Sleep</div>
+
+    <div class="card" id="card">
+      <div class="title">Half<span>Life</span></div>
+      <div class="sleep" aria-hidden="true">
+        <div class="lbl">Sleep-safe</div>
+        <div class="val" id="sleepVal">--:--</div>
+      </div>
+
+      <div class="unit">MG</div>
+      <div class="digits"><svg id="digits" aria-hidden="true"></svg></div>
+
+      <div class="dial-wrap">
+        <div class="disc" id="disc"></div>
+        <svg class="fx" id="fx" viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <radialGradient id="coffee" cx="50" cy="50" r="38" gradientUnits="userSpaceOnUse">
+              <stop offset="0" stop-color="#1c0c05"/>
+              <stop offset=".55" stop-color="#4a2410"/>
+              <stop offset=".88" stop-color="#9a5e2c"/>
+              <stop offset="1" stop-color="#e2a86c"/>
+            </radialGradient>
+            <clipPath id="wedgeClip"><path id="clipPath"/></clipPath>
+          </defs>
+          <circle class="ring" cx="50" cy="50" r="46" fill="none" stroke-width=".7" stroke-dasharray=".1 1.6" stroke-linecap="round"/>
+          <path id="wedge" fill="url(#coffee)"/>
+          <g id="fizz" clip-path="url(#wedgeClip)"></g>
+          <polyline id="edge" fill="none" stroke="rgba(255,226,186,.75)" stroke-width=".55" stroke-linecap="round" stroke-linejoin="round"/>
+          <g id="drops"></g>
+        </svg>
+        <span class="tick" style="left:50%;top:0%">0</span>
+        <span class="tick" style="left:100%;top:50%">100</span>
+        <span class="tick" style="left:50%;top:100%">200</span>
+        <span class="tick" style="left:0%;top:50%">300</span>
+      </div>
+
+      <div class="chips" role="group" aria-label="Log a drink">
+        <button class="chip" data-mg="63" data-name="Espresso">Espresso</button>
+        <button class="chip" data-mg="95" data-name="Coffee">Coffee</button>
+        <button class="chip" data-mg="70" data-name="Matcha">Matcha</button>
+        <button class="chip" data-mg="200" data-name="Cold brew">Cold brew</button>
+      </div>
+
+      <div class="timeline" id="timeline" role="slider" tabindex="0" aria-label="Time of day" aria-valuemin="360" aria-valuemax="1440">
+        <svg id="tl" viewBox="0 0 300 70"></svg>
+        <div class="time-tag" id="timeTag"><i></i><span></span></div>
+        <div class="labels"><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
+      </div>
+
+      <div class="sr" aria-live="polite" id="status"></div>
+    </div>
+  </div>
+
+<script>
+(() => {
+  if (/[?&]embed\b/.test(location.search)) document.body.classList.add('embed');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const NS = 'http://www.w3.org/2000/svg';
+  const $ = id => document.getElementById(id);
+  const mk = (tag, attrs, parent) => {
+    const el = document.createElementNS(NS, tag);
+    for (const k in attrs) el.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(el);
+    return el;
+  };
+
+  /* ---------- model ---------- */
+  const DAY0 = 360, DAY1 = 1440;      // 06:00 → 24:00, minutes
+  const HALF = 300;                   // caffeine half-life ≈ 5 h
+  const SAFE = 50;                    // mg considered fine for sleep
+  const SCALE = 400;                  // full dial = 400 mg (daily guideline)
+  const SIM_SPEED = 1 / 1.2;          // sim minutes per real second
+  let nextId = 1;
+  const state = { now: 930, doses: [], shown: 0, vel: 0, amp: 0, phase: 0, dragging: false };
+
+  const levelAt = t => state.doses.reduce((c, d) => d.t <= t ? c + d.mg * Math.pow(.5, (t - d.t) / HALF) : c, 0);
+  function sleepSafe() {
+    if (!state.doses.length) return null;
+    const last = Math.max(...state.doses.map(d => d.t));
+    for (let t = last; t < DAY1 + 720; t += 2) if (levelAt(t) < SAFE) return t;
+    return DAY1 + 720;
+  }
+  const fmt = m => { m = Math.round(m) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
+
+  /* ---------- dot-matrix digits ---------- */
+  const FONT = {
+    0:['01110','10001','10011','10101','11001','10001','01110'],
+    1:['00100','01100','00100','00100','00100','00100','01110'],
+    2:['01110','10001','00001','00010','00100','01000','11111'],
+    3:['11111','00010','00100','00010','00001','10001','01110'],
+    4:['00010','00110','01010','10010','11111','00010','00010'],
+    5:['11111','10000','11110','00001','00001','10001','01110'],
+    6:['00110','01000','10000','11110','10001','10001','01110'],
+    7:['11111','00001','00010','00100','01000','01000','01000'],
+    8:['01110','10001','10001','01110','10001','10001','01110'],
+    9:['01110','10001','10001','01111','00001','00010','01100'],
+  };
+  const SUB = 2, COLS = 5 * SUB, ROWS = 7 * SUB, GAP = 3, ND = 3;
+  const digitsSvg = $('digits');
+  digitsSvg.setAttribute('viewBox', `-0.5 -0.5 ${COLS * ND + GAP * (ND - 1)} ${ROWS}`);
+  const cells = [];
+  for (let d = 0; d < ND; d++) {
+    cells.push([]);
+    for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
+      const el = mk('circle', { cx: d * (COLS + GAP) + c, cy: r, r: .36 }, digitsSvg);
+      el.style.opacity = 0;
+      el.style.transitionDelay = `${r * 9}ms`;   // glyphs fill top → bottom, like a pour
+      cells[d].push({ el, r, c });
+    }
+  }
+  let shownStr = '';
+  function setDigits(n) {
+    const s = String(Math.max(0, Math.min(999, Math.round(n)))).padStart(ND, '0');
+    if (s === shownStr) return;
+    shownStr = s;
+    const lead = s.length - String(+s).length;
+    [...s].forEach((ch, d) => {
+      const g = FONT[ch], dim = d < lead;
+      cells[d].forEach(({ el, r, c }) => {
+        const on = g[(r / SUB) | 0][(c / SUB) | 0] === '1';
+        el.style.opacity = on ? (dim ? .22 : 1) : .035;
+      });
+    });
+  }
+
+  /* ---------- dial ---------- */
+  const R = 38;
+  const pt = (r, a) => { const q = a * Math.PI / 180; return [50 + r * Math.sin(q), 50 - r * Math.cos(q)]; };
+  function wedgeGeom(A, amp, phase) {
+    if (A < .3) return { d: '', edge: '' };
+    if (A > 359.6) return { d: `M50 12 A${R} ${R} 0 1 1 50 88 A${R} ${R} 0 1 1 50 12 Z`, edge: '' };
+    const [x1, y1] = pt(R, A);
+    let d = `M50 50 L50 12 A${R} ${R} 0 ${A > 180 ? 1 : 0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
+    const q = A * Math.PI / 180, px = Math.cos(q), py = Math.sin(q);
+    const pts = [];
+    const n = 16;
+    for (let i = 0; i <= n; i++) {
+      const f = i / n, r = R * (1 - f);
+      const off = amp * 2.6 * Math.sin(f * Math.PI) * Math.sin(f * 8 + phase);
+      const [bx, by] = pt(r, A);
+      pts.push(`${(bx + px * off).toFixed(2)},${(by + py * off).toFixed(2)}`);
+    }
+    d += ' L' + pts.slice(1).join(' L') + ' Z';
+    return { d, edge: pts.join(' ') };
+  }
+
+  const fizz = $('fizz'), particles = [];
+  for (let i = 0; i < 42; i++) {
+    const p = { r: R * Math.sqrt(Math.random()) * .96, a: Math.random() * 360, s: 4 + Math.random() * 14, out: .4 + Math.random() * 1.6 };
+    p.el = mk('circle', { r: (.25 + Math.random() * .55).toFixed(2), fill: 'rgba(255,225,190,.7)' }, fizz);
+    particles.push(p);
+  }
+
+  /* ---------- theme: calm blue → wired amber ---------- */
+  const CALM  = ['#03051a', '#0b1a78', '#2453e0', '#7d95ec', '#b7a3ea'];
+  const WIRED = ['#160604', '#5c1c0a', '#d4602a', '#eaa066', '#f0c495'];
+  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const CALMr = CALM.map(hex), WIREDr = WIRED.map(hex);
+  const card = $('card');
+  function theme(f) {
+    CALMr.forEach((a, i) => {
+      const b = WIREDr[i];
+      card.style.setProperty(`--c${i + 1}`, `rgb(${a.map((v, k) => Math.round(v + (b[k] - v) * f)).join(',')})`);
+    });
+  }
+
+  /* ---------- timeline ---------- */
+  const tl = $('tl');
+  const X0 = 8, X1 = 292, BASE = 60, TOP = 6, NDOTS = 72;
+  const xAt = m => X0 + (X1 - X0) * (Math.min(DAY1, Math.max(DAY0, m)) - DAY0) / (DAY1 - DAY0);
+  let yMax = 250;
+  const yAt = mg => BASE - (BASE - TOP) * Math.min(1, mg / yMax);
+  mk('line', { x1: X0, x2: X1, y1: BASE, y2: BASE, stroke: 'rgba(255,255,255,.25)', 'stroke-width': .6 }, tl);
+  const safeLine = mk('line', { x1: X0, x2: X1, stroke: 'rgba(160,190,255,.45)', 'stroke-width': .6, 'stroke-dasharray': '2 2' }, tl);
+  const curveG = mk('g', {}, tl);
+  const curveDots = [];
+  for (let i = 0; i <= NDOTS; i++) curveDots.push(mk('circle', { r: 1.05 }, curveG));
+  const moon = mk('g', {}, tl);
+  mk('circle', { r: 3, fill: 'rgba(10,10,40,.55)', stroke: '#fff', 'stroke-width': .7 }, moon);
+  mk('path', { d: 'M.6 -1.7 A1.8 1.8 0 1 0 .6 1.7 A1.35 1.35 0 1 1 .6 -1.7 Z', fill: '#fff' }, moon);
+  const markersG = mk('g', {}, tl);
+  const playline = mk('line', { class: 'playline', stroke: 'rgba(255,255,255,.8)', 'stroke-width': 1 }, tl);
+  const playTop = mk('circle', { r: 3, fill: '#fff', stroke: '#c07a3e', 'stroke-width': 1.5 }, tl);
+  const playBot = mk('circle', { r: 2.4, fill: '#fff' }, tl);
+  let sleepX = null;
+
+  function rebuild() {
+    let peak = 0;
+    for (let i = 0; i <= NDOTS; i++) peak = Math.max(peak, levelAt(DAY0 + (DAY1 - DAY0) * i / NDOTS));
+    yMax = Math.max(170, peak * 1.12);
+    curveDots.forEach((c, i) => {
+      const m = DAY0 + (DAY1 - DAY0) * i / NDOTS;
+      c.setAttribute('cx', xAt(m).toFixed(2));
+      c.setAttribute('cy', yAt(levelAt(m)).toFixed(2));
+      c.dataset.m = m;
+    });
+    safeLine.setAttribute('y1', yAt(SAFE)); safeLine.setAttribute('y2', yAt(SAFE));
+    markersG.replaceChildren();
+    state.doses.forEach(d => {
+      const g = mk('g', { class: 'marker', transform: `translate(${xAt(d.t).toFixed(2)},${BASE})`, 'data-id': d.id }, markersG);
+      mk('circle', { r: 4.5, fill: 'transparent' }, g);
+      mk('circle', { r: 2, fill: '#e8b27a', stroke: 'rgba(0,0,0,.35)', 'stroke-width': .5 }, g);
+      mk('title', {}, g).textContent = `${d.name} · ${d.mg} mg at ${fmt(d.t)} — click to remove`;
+    });
+    const s = sleepSafe();
+    moon.style.display = s === null ? 'none' : '';
+    const val = $('sleepVal');
+    const txt = s === null ? '--:--' : fmt(s);
+    if (val.textContent !== txt) {
+      val.textContent = txt;
+      if (!reduce) val.animate([{ transform: 'translateY(45%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 380, easing: 'cubic-bezier(.2,.9,.3,1.2)' });
+    }
+    val.classList.toggle('soft', s === null);
+  }
+
+  /* ---------- pouring ---------- */
+  const drops = $('drops');
+  const live = [];   // falling droplets
+  const rings = [];  // splash rings
+  function addDose(name, mg) {
+    state.doses.push({ id: nextId++, t: state.now, mg, name });
+    state.amp = Math.min(1.4, state.amp + 1);
+    rebuild();
+    announce(`Logged ${name}, ${mg} milligrams.`);
+  }
+  function bump(mg) {
+    if (reduce) return;
+    const b = document.createElement('div');
+    b.className = 'bump'; b.textContent = `+${mg}`;
+    card.appendChild(b);
+    b.animate([{ transform: 'translateY(2cqw)', opacity: 0 }, { opacity: 1, offset: .2 }, { transform: 'translateY(-5cqw)', opacity: 0 }], { duration: 1300, easing: 'ease-out' }).onfinish = () => b.remove();
+  }
+  function pour(name, mg) {
+    bump(mg);
+    if (reduce) { addDose(name, mg); return; }
+    const count = 8 + Math.round(mg / 20);
+    const pourId = {};
+    for (let i = 0; i < count; i++) {
+      live.push({
+        x: 50 + (Math.random() - .5) * 2.4, y: -20, vy: 0, delay: i * .028,
+        r: .55 + Math.random() * .9, pour: pourId, first: i === 0, name, mg,
+        el: mk('circle', { r: 0, fill: '#e8b27a' }, drops),
+      });
+    }
+  }
+  document.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => pour(b.dataset.name, +b.dataset.mg)));
+
+  /* ---------- timeline interaction ---------- */
+  const timeline = $('timeline');
+  function scrubTo(e) {
+    const b = tl.getBoundingClientRect();
+    const x = (e.clientX - b.left) / b.width * 300;
+    state.now = DAY0 + (DAY1 - DAY0) * Math.min(1, Math.max(0, (x - X0) / (X1 - X0)));
+  }
+  timeline.addEventListener('pointerdown', e => {
+    const m = e.target.closest('.marker');
+    if (m) {
+      state.doses = state.doses.filter(d => d.id !== +m.dataset.id);
+      state.amp = Math.min(1.4, state.amp + .6);
+      rebuild(); announce('Drink removed.');
+      return;
+    }
+    state.dragging = true; timeline.setPointerCapture(e.pointerId); scrubTo(e);
+  });
+  timeline.addEventListener('pointermove', e => { if (state.dragging) scrubTo(e); });
+  const endDrag = () => { state.dragging = false; };
+  timeline.addEventListener('pointerup', endDrag);
+  timeline.addEventListener('pointercancel', endDrag);
+  timeline.addEventListener('keydown', e => {
+    const step = e.shiftKey ? 60 : 15;
+    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') state.now = Math.min(DAY1, state.now + step);
+    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') state.now = Math.max(DAY0, state.now - step);
+    else return;
+    e.preventDefault();
+  });
+
+  const status = $('status');
+  let lastAnnounce = '';
+  function announce(extra = '') {
+    const s = sleepSafe();
+    const msg = `${extra} ${Math.round(levelAt(state.now))} milligrams of caffeine at ${fmt(state.now)}.` + (s !== null ? ` Sleep-safe from ${fmt(s)}.` : '');
+    if (msg !== lastAnnounce) { status.textContent = msg; lastAnnounce = msg; }
+  }
+
+  /* ---------- frame loop ---------- */
+  const wedge = $('wedge'), clip = $('clipPath'), edge = $('edge'), disc = $('disc'), fx = $('fx');
+  const timeTag = $('timeTag'), timeTxt = timeTag.querySelector('span');
+  let last = performance.now();
+
+  function frame(now) {
+    const dt = Math.min(.05, (now - last) / 1000); last = now;
+
+    if (!state.dragging && state.now < DAY1) state.now = Math.min(DAY1, state.now + dt * SIM_SPEED);
+
+    // springy readout
+    const target = levelAt(state.now);
+    if (reduce) { state.shown = target; state.vel = 0; }
+    else {
+      const k = 70, c = 10;
+      state.vel += (k * (target - state.shown) - c * state.vel) * dt;
+      state.shown += state.vel * dt;
+    }
+    state.amp *= Math.exp(-dt / .9);
+    state.phase += dt * 10;
+
+    const shown = Math.max(0, state.shown);
+    setDigits(shown);
+    card.classList.toggle('over', target > SCALE);
+    theme(Math.pow(Math.min(1, Math.max(0, shown - 30) / 300), 1.15));
+
+    // wedge
+    const A = Math.min(360, shown / SCALE * 360);
+    const g = wedgeGeom(A, reduce ? 0 : state.amp, state.phase);
+    wedge.setAttribute('d', g.d); clip.setAttribute('d', g.d); edge.setAttribute('points', g.edge);
+    disc.style.setProperty('--a', A.toFixed(2));
+
+    // fizz drifts with the caffeine
+    fizz.style.opacity = reduce ? 0 : Math.min(.9, shown / 120);
+    const lvl = Math.min(1.5, shown / SCALE);
+    particles.forEach(p => {
+      p.a = (p.a + p.s * (.25 + lvl) * dt) % 360;
+      p.r += p.out * dt * (.4 + lvl);
+      if (p.r > R) p.r = 2 + Math.random() * 6;
+      const [x, y] = pt(p.r, p.a);
+      p.el.setAttribute('cx', x.toFixed(2)); p.el.setAttribute('cy', y.toFixed(2));
+    });
+
+    // droplets
+    for (let i = live.length - 1; i >= 0; i--) {
+      const d = live[i];
+      if (d.delay > 0) { d.delay -= dt; continue; }
+      d.vy += 260 * dt; d.y += d.vy * dt;
+      d.el.setAttribute('cx', d.x.toFixed(2)); d.el.setAttribute('cy', d.y.toFixed(2));
+      d.el.setAttribute('r', (d.r * (1 + Math.min(.6, d.vy / 300))).toFixed(2));
+      if (d.y >= 50) {
+        d.el.remove(); live.splice(i, 1);
+        if (d.first) {
+          addDose(d.name, d.mg);
+          rings.push({ t: 0, el: mk('circle', { cx: 50, cy: 50, r: 0, fill: 'none', stroke: '#ffe0bd', 'stroke-width': 1.2 }, drops) });
+        }
+      }
+    }
+    for (let i = rings.length - 1; i >= 0; i--) {
+      const r = rings[i]; r.t += dt / .75;
+      const e = 1 - Math.pow(1 - Math.min(1, r.t), 3);
+      r.el.setAttribute('r', (e * R).toFixed(2));
+      r.el.setAttribute('stroke-opacity', (1 - r.t).toFixed(3));
+      if (r.t >= 1) { r.el.remove(); rings.splice(i, 1); }
+    }
+
+    // timeline playhead + past/future curve
+    const x = xAt(state.now), y = yAt(target);
+    playline.setAttribute('x1', x); playline.setAttribute('x2', x);
+    playline.setAttribute('y1', y); playline.setAttribute('y2', BASE);
+    playTop.setAttribute('cx', x); playTop.setAttribute('cy', y);
+    playBot.setAttribute('cx', x); playBot.setAttribute('cy', BASE);
+    curveDots.forEach(c => c.setAttribute('fill', +c.dataset.m <= state.now ? 'rgba(255,255,255,.9)' : 'rgba(255,255,255,.3)'));
+
+    const s = sleepSafe();
+    if (s !== null) {
+      const tx = xAt(s);
+      sleepX = sleepX === null || reduce ? tx : sleepX + (tx - sleepX) * Math.min(1, dt * 8);
+      moon.setAttribute('transform', `translate(${sleepX.toFixed(2)},${yAt(SAFE)})`);
+    } else sleepX = null;
+
+    const svgH = tl.getBoundingClientRect().height;
+    timeTag.style.left = (x / 300 * 100) + '%';
+    timeTag.style.top = (y / 70 * svgH) + 'px';
+    timeTxt.textContent = fmt(state.now);
+    timeTag.classList.toggle('paused', state.dragging || state.now >= DAY1);
+    timeline.setAttribute('aria-valuenow', Math.round(state.now));
+    timeline.setAttribute('aria-valuetext', fmt(state.now));
+
+    requestAnimationFrame(frame);
+  }
+
+  /* ---------- opening: replay the morning ---------- */
+  rebuild();
+  announce();
+  requestAnimationFrame(frame);
+  const seed = [[490, 'Coffee', 95, 300], [780, 'Espresso', 63, 1500]];
+  if (reduce) seed.forEach(([t, n, mg]) => state.doses.push({ id: nextId++, t, mg, name: n })), rebuild();
+  else seed.forEach(([t, n, mg, delay]) => setTimeout(() => {
+    const keep = state.now; state.now = t; addDose(n, mg); state.now = keep; bump(mg);
+  }, delay));
+})();
+</script>
+</body>
+</html>
