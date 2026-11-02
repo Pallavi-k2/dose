@@ -22,12 +22,15 @@ On the web: click or tap, and scroll or drag the crown. Keyboard: Tab to the but
 
 ## Motion & sound
 
-Motion principles, borrowed from premium watch-face reels:
+Motion principles, borrowed from premium watch-face reels and audited against Emil Kowalski's animation skills and Apple's fluid-interface guidance:
 
 - **Light lives at the edges.** Three blurred ribbons of light drift around the dial's rim at different speeds and blend additively. They flow faster the more caffeine you've had, and surge while a drink pours.
-- **Dip & bloom, never slide.** Opening the drink list sinks and blurs the face away while the list comes into focus. Rows bloom in one after another, about 38 ms apart.
+- **Dip & bloom, never slide.** Opening the drink list sinks and blurs the face away while the list comes into focus on an iOS sheet curve (380 ms in; closing snaps back in about 220 ms). Rows bloom in 30 ms apart.
 - **Staged wake-up.** On load, the glow blooms first, then the dial, the number, the text, and finally the controls.
-- **Long, smooth deceleration.** Everything eases with expo-out (`cubic-bezier(.16,1,.3,1)`), and the number's spring is tuned for glide with only a slight settle.
+- **Responsive, not floaty.** UI motion stays under 300 ms on a strong ease-out (`cubic-bezier(.23,1,.32,1)`). Presses give instant, subtle feedback (scale .94–.97 in 100 ms) with no overshoot, and the number's spring is critically damped.
+- **Motion only where it means something.** The bottom line animates only when the *kind* of message changes, not each time *Clear by* ticks forward a minute. Hover effects are limited to real pointers.
+- **Reduced motion is gentler, not off.** With `prefers-reduced-motion`, movement and scaling are dropped but opacity fades remain.
+- **Cheap to render.** The colour variable that drives the calm→wired shift is scoped to the three elements that read it, so the rest of the face is never restyled; during a pour the page holds 60 fps.
 - **Ripples.** Logging a drink sends three staggered rings of light outward; undo pulls them back in.
 - **Caramel liquid.** The wedge is a soft honey-caramel, lighter at the core and deeper at the rim. Soft heat-haze bands sway through it, and its colours breathe slowly. When it moves it sloshes, and it springs into place with no bounce.
 - **Liquid pour.** The stream is many drops melted together by an SVG goo filter. Each drop stretches as gravity speeds it up, and the stream starts thin, swells, and tapers so its tail breaks off. A small splash and pool form where it lands.
