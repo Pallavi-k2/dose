@@ -14,7 +14,7 @@
     --page: #050608;
     --grid-dot: rgba(255,255,255,.08);
     --tint: #ffb36b;
-    --crema: #e8b27a;
+    --crema: #ffb347;
     --warn: #ff8a5c;
     --platter: #232326;
     --platter-hi: #2e2e32;
@@ -73,6 +73,11 @@
     --g3: color-mix(in oklch, #12227a, #5e1c06 calc(var(--f) * 100%));
     --g4: color-mix(in oklch, #a55cff, #ffd36b calc(var(--f) * 100%));  /* aurora accents */
     --g5: color-mix(in oklch, #46c8ff, #ff4f3a calc(var(--f) * 100%));
+    --c1: color-mix(in oklch, #03051a, #160604 calc(var(--f) * 100%));   /* full-screen field, edge to edge */
+    --c2: color-mix(in oklch, #0b1a78, #5c1c0a calc(var(--f) * 100%));
+    --c3: color-mix(in oklch, #2453e0, #d4602a calc(var(--f) * 100%));
+    --c4: color-mix(in oklch, #7d95ec, #eaa066 calc(var(--f) * 100%));
+    --c5: color-mix(in oklch, #b7a3ea, #f0c495 calc(var(--f) * 100%));
     position: relative; aspect-ratio: 416 / 496; border-radius: 21% / 17.6%;
     overflow: hidden; isolation: isolate; container-type: inline-size;
     background: #000;
@@ -83,7 +88,7 @@
 
   /* shared watchOS bits */
   .clock { position: absolute; z-index: 15; top: 7.6cqw; right: 10cqw; font-size: 6.6cqw; font-weight: 600; font-variant-numeric: tabular-nums; letter-spacing: -.01em; transition: color .3s; pointer-events: none; }
-  .screen.travel .clock { color: var(--tint); }
+  .screen.travel .clock { color: #ffd6ad; }
   .tb-btn {
     position: absolute; top: 4.6cqw; left: 7.6cqw; width: 14cqw; height: 14cqw; border-radius: 50%;
     display: grid; place-items: center; border: 0; padding: 0; cursor: pointer;
@@ -94,7 +99,7 @@
   .tb-btn:focus-visible, .cell:focus-visible, .stepper:focus-visible, .primary:focus-visible, .field:focus-visible, .toggle:focus-visible { outline: .7cqw solid var(--tint); outline-offset: .5cqw; }
   .add-btn { background: rgba(255,179,107,.2); z-index: 4; }
   .add-btn:hover { background: rgba(255,179,107,.3); }
-  .travel-label { position: absolute; z-index: 4; top: 7.6cqw; left: 10cqw; font-size: 6.6cqw; font-weight: 600; color: var(--tint); opacity: 0; transform: translateY(-30%); transition: opacity .25s, transform .3s; pointer-events: none; }
+  .travel-label { position: absolute; z-index: 4; top: 7.6cqw; left: 10cqw; font-size: 6.6cqw; font-weight: 600; color: #ffd6ad; opacity: 0; transform: translateY(-30%); transition: opacity .25s, transform .3s; pointer-events: none; }
   .screen.travel .add-btn { opacity: 0; transform: scale(.6); pointer-events: none; }
   .screen.travel .travel-label { opacity: 1; transform: none; }
 
@@ -110,9 +115,11 @@
   .screen.undoable .dial-wrap { cursor: pointer; }
   .dial-wrap.press { --s: .955; }
   .disc {
-    position: absolute; inset: 12%; border-radius: 50%; --a: 0;
-    background: conic-gradient(from calc(var(--a) * 1deg), #8e9bb0 0deg, #b9c3d1 calc((360 - var(--a)) * .5deg), #f4f7fb calc((360 - var(--a)) * .96deg), #ffffff 360deg);
-    box-shadow: 0 0 0 1px rgba(255,255,255,.08), 0 3cqw 10cqw rgba(0,0,30,.55), inset 0 0 5cqw rgba(0,0,30,.22);
+    position: absolute; inset: 12%; border-radius: 50%;
+    background:
+      radial-gradient(ellipse 62% 34% at 42% 16%, rgba(255,255,255,.13), rgba(255,255,255,0) 70%),
+      radial-gradient(circle at 50% 38%, color-mix(in oklch, #1a2156, #3a1420 calc(var(--f) * 100%)), color-mix(in oklch, #060818, #0e0406 calc(var(--f) * 100%)) 72%);
+    box-shadow: inset 0 0 0 .45cqw rgba(255,255,255,.14), inset 0 -3cqw 6cqw rgba(0,0,0,.55), 0 2cqw 8cqw rgba(0,0,20,.6);
   }
   .fx { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
   .ring { stroke: rgba(255,255,255,.35); transition: stroke .4s; }
@@ -134,7 +141,11 @@
   .face { position: absolute; inset: 0; transition: transform .6s var(--ease), filter .5s var(--ease), opacity .5s var(--ease); }
   /* light comes from the dial; edges stay true black (OLED) so text always sits on dark */
   .glow { position: absolute; inset: 0; pointer-events: none;
-    background: radial-gradient(circle 54cqw at 50% 59%, var(--g1) 0, var(--g2) 21cqw, var(--g3) 30cqw, rgba(0,0,0,0) 50cqw); }
+    background: radial-gradient(ellipse 66% 58% at 50% 54%, var(--c1) 28%, var(--c2) 50%, var(--c3) 74%, var(--c4) 92%, var(--c5) 100%); }
+  /* soft dark scrims keep the clock, + and bottom text readable over the bright edges */
+  .scrim { position: absolute; left: 0; right: 0; pointer-events: none; }
+  .scrim.top { top: 0; height: 34cqw; background: linear-gradient(rgba(0,0,0,.88) 0, rgba(0,0,0,.74) 30%, rgba(0,0,0,.34) 62%, rgba(0,0,0,0)); }
+  .scrim.bottom { bottom: 0; height: 30cqw; background: linear-gradient(rgba(0,0,0,0), rgba(0,0,0,.55) 45%, rgba(0,0,0,.72)); }
   .screen.sheet-open .face { transform: scale(.88); filter: blur(7px) brightness(.3); }
 
   /* ---------------- sheet ---------------- */
@@ -244,6 +255,8 @@
           <!-- ============ face ============ -->
           <div class="face" id="face">
             <div class="glow" aria-hidden="true"></div>
+            <div class="scrim top" aria-hidden="true"></div>
+            <div class="scrim bottom" aria-hidden="true"></div>
             <button class="tb-btn add-btn boot-el" id="addBtn" style="--d:.78s" aria-label="Add a drink">
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M3 10h14" stroke="#ffb36b" stroke-width="2.6" stroke-linecap="round"/></svg>
             </button>
@@ -268,28 +281,32 @@
                     <rect x="0" y="-40" width="100" height="140" fill="url(#streamFade)"/>
                   </mask>
                   <linearGradient id="liquidFill" x1="0" y1="-14" x2="0" y2="52" gradientUnits="userSpaceOnUse">
-                    <stop offset="0" stop-color="#f3c48e"/><stop offset=".6" stop-color="#d39555"/><stop offset="1" stop-color="#a8652e"/>
+                    <stop offset="0" stop-color="#fff0a0"/><stop offset=".55" stop-color="#ffb347"/><stop offset="1" stop-color="#ff6a3d"/>
                   </linearGradient>
                   <filter id="soft" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="1.5"/></filter>
+                  <!-- Ember: a sun-like liquid, glowing core to red rim; stops drift slowly in JS -->
                   <radialGradient id="coffee" cx="50" cy="50" r="38" gradientUnits="userSpaceOnUse">
-                    <stop offset="0" stop-color="#1c0c05"/>
-                    <stop offset=".55" stop-color="#4a2410"/>
-                    <stop offset=".88" stop-color="#9a5e2c"/>
-                    <stop offset="1" stop-color="#e2a86c"/>
+                    <stop class="em" offset="0" stop-color="#fff3b0"/>
+                    <stop class="em" offset=".42" stop-color="#ffd166"/>
+                    <stop class="em" offset=".78" stop-color="#ffa040"/>
+                    <stop class="em" offset="1" stop-color="#ff6a3d"/>
                   </radialGradient>
+                  <filter id="haze" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>
+                  <filter id="edgeSoft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation=".35"/></filter>
                   <clipPath id="wedgeClip"><path id="clipPath"/></clipPath>
                 </defs>
                 <!-- aurora: soft ribbons of light drifting around the dial's rim -->
                 <g id="aurora" filter="url(#soft)" style="mix-blend-mode:screen">
-                  <circle cx="50" cy="50" r="47.5" fill="none" stroke-width="3.4" stroke-linecap="round" style="stroke:var(--g2)"/>
-                  <circle cx="50" cy="50" r="46" fill="none" stroke-width="2.2" stroke-linecap="round" style="stroke:var(--g4)"/>
-                  <circle cx="50" cy="50" r="48.6" fill="none" stroke-width="1.6" stroke-linecap="round" style="stroke:var(--g5)"/>
+                  <circle cx="50" cy="50" r="47.6" fill="none" stroke-width="4.4" stroke-linecap="round" style="stroke:var(--g2)"/>
+                  <circle cx="50" cy="50" r="45.4" fill="none" stroke-width="3" stroke-linecap="round" style="stroke:var(--g4)"/>
+                  <circle cx="50" cy="50" r="49.8" fill="none" stroke-width="2.2" stroke-linecap="round" style="stroke:var(--g5)"/>
                 </g>
                 <circle class="ring" cx="50" cy="50" r="46.5" fill="none" stroke-width=".7" stroke-dasharray=".1 1.6" stroke-linecap="round"/>
                 <circle id="undoRing" cx="50" cy="50" r="46.5" fill="none" stroke="#ffe0bd" stroke-width="1.3" stroke-linecap="round" transform="rotate(-90 50 50)" stroke-dasharray="0 400"/>
-                <path id="wedge" fill="url(#coffee)"/>
-                <g id="fizz" clip-path="url(#wedgeClip)"></g>
-                <polyline id="edge" fill="none" stroke="rgba(255,226,186,.75)" stroke-width=".55" stroke-linecap="round" stroke-linejoin="round"/>
+                <path id="wedge" fill="url(#coffee)" filter="url(#edgeSoft)"/>
+                <!-- heat-haze bands: soft horizontal ribbons sway through the liquid -->
+                <g clip-path="url(#wedgeClip)"><g id="bands" filter="url(#haze)" style="mix-blend-mode:soft-light"></g></g>
+                <polyline id="edge" fill="none" stroke="rgba(255,244,214,.7)" stroke-width=".7" stroke-linecap="round" stroke-linejoin="round" filter="url(#edgeSoft)"/>
                 <g mask="url(#streamMask)"><g id="liquid" filter="url(#goo)" fill="url(#liquidFill)"></g></g>
                 <g id="drops"></g>
               </svg>
@@ -545,19 +562,21 @@
     const pts = [];
     for (let i = 0; i <= 16; i++) {
       const f = i / 16;
-      const off = amp * 2.6 * Math.sin(f * Math.PI) * Math.sin(f * 8 + phase);
+      const off = amp * 2.1 * Math.sin(f * Math.PI) * Math.sin(f * 6 + phase);
       const [bx, by] = pt(R * (1 - f), A);
       pts.push(`${(bx + px * off).toFixed(2)},${(by + py * off).toFixed(2)}`);
     }
     d += ' L' + pts.slice(1).join(' L') + ' Z';
     return { d, edge: pts.join(' ') };
   }
-  const fizz = $('fizz'), particles = [];
-  for (let i = 0; i < 42; i++) {
-    const p = { r: R * Math.sqrt(Math.random()) * .96, a: Math.random() * 360, s: 4 + Math.random() * 14, out: .4 + Math.random() * 1.6 };
-    p.el = mk('circle', { r: (.25 + Math.random() * .55).toFixed(2), fill: 'rgba(255,225,190,.7)' }, fizz);
-    particles.push(p);
-  }
+  const bandsG = $('bands');
+  const bands = [...Array(5)].map((_, i) => ({
+    y: 16 + i * 15, h: 7 + (i % 2) * 3, sp: .28 + (i % 3) * .14, ph: i * 1.9,
+    el: mk('rect', { x: -10, width: 120, rx: 4, fill: i % 2 ? '#fff4d0' : '#c2412a', opacity: i % 2 ? .22 : .18 }, bandsG),
+  }));
+  const emStops = [...document.querySelectorAll('#coffee .em')];
+  const EM_CALM  = ['#fff3b0', '#ffd166', '#ffa040', '#ff7a3a'];
+  const EM_WIRED = ['#fff0a0', '#ffb347', '#ff6a3d', '#ff3d4a'];
 
   /* ---------------- theme: calm blue → wired amber ---------------- */
   const screen = $('screen');
@@ -616,7 +635,7 @@
   function splash(inward) {
     // three rings, staggered, like light rippling out of the dial
     [0, .1, .2].forEach((delay, i) => rings.push({ t: -delay / .9, inward,
-      el: mk('circle', { cx: 50, cy: 50, r: 0, fill: 'none', stroke: i ? 'rgba(255,224,189,.6)' : '#ffe0bd', 'stroke-width': 1.3 - i * .35, 'stroke-opacity': 0 }, drops) }));
+      el: mk('circle', { cx: 50, cy: 50, r: 0, fill: 'none', stroke: i ? 'rgba(255,214,150,.7)' : '#ffe2b0', 'stroke-width': 2.4 - i * .6, 'stroke-opacity': 0, filter: 'url(#soft)' }, drops) }));
   }
   function bump(text) {
     if (reduce) return;
@@ -924,13 +943,13 @@
     const target = base + pending;
     if (reduce) { S.shown = target; S.vel = 0; }
     else {
-      const k = 64, c = 13;
+      const k = 42, c = 12.4;   // ~critically damped: glides in, no bounce
       S.vel += (k * (target - S.shown) - c * S.vel) * dt;
       S.shown += S.vel * dt;
     }
     if (P && !reduce) S.amp = Math.max(S.amp, .5);
-    S.amp *= Math.exp(-dt / .9);
-    S.phase += dt * 10;
+    S.amp *= Math.exp(-dt / 1.4);
+    S.phase += dt * 5.5;
 
     const shown = Math.max(0, S.shown);
     setDigits(shown);
@@ -964,15 +983,19 @@
     const uf = S.undo ? Math.max(0, (S.undo.until - now) / UNDO_MS) : 0;
     undoRing.setAttribute('stroke-dasharray', `${(uf * UC).toFixed(2)} ${UC + 10}`);
 
-    fizz.style.opacity = reduce ? 0 : Math.min(.9, shown / 120);
-    const lvl = Math.min(1.5, shown / SCALE);
-    particles.forEach(p => {
-      p.a = (p.a + p.s * (.25 + lvl) * dt) % 360;
-      p.r += p.out * dt * (.4 + lvl);
-      if (p.r > R) p.r = 2 + Math.random() * 6;
-      const [x, y] = pt(p.r, p.a);
-      p.el.setAttribute('cx', x.toFixed(2)); p.el.setAttribute('cy', y.toFixed(2));
+    // liquid: bands sway sideways like heat haze; the colours breathe between gold and red
+    const ts = now / 1000;
+    bands.forEach(b => {
+      const x = reduce ? 0 : Math.sin(ts * b.sp + b.ph) * 4.5;
+      const y = b.y + (reduce ? 0 : Math.sin(ts * b.sp * .6 + b.ph * 2) * 1.6);
+      b.el.setAttribute('y', y.toFixed(2)); b.el.setAttribute('height', b.h);
+      b.el.setAttribute('transform', `translate(${x.toFixed(2)} 0)`);
     });
+    if ((S.frameN = (S.frameN || 0) + 1) % 3 === 0) {
+      const fNow = Math.min(1, Math.max(0, shown - 30) / 300);
+      const pct = Math.max(0, Math.min(100, fNow * 100 + (reduce ? 0 : Math.sin(ts / 3.2) * 14)));
+      emStops.forEach((st, i) => { st.style.stopColor = `color-mix(in oklch, ${EM_CALM[i]}, ${EM_WIRED[i]} ${pct.toFixed(1)}%)`; });
+    }
     for (let i = live.length - 1; i >= 0; i--) {
       const d = live[i];
       d.vy += 260 * dt; d.y += d.vy * dt;

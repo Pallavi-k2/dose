@@ -6,7 +6,7 @@ A caffeine clock for Apple Watch. One glanceable face, a two-tap way to log any 
 
 | Moment | What you do | What happens |
 |---|---|---|
-| **Glance** | Raise your wrist | Milligrams in your system, the coffee wedge in the dial, and *Clear by 6:48 PM* (when you'll drop under 50 mg). The face shifts from calm blue to wired amber as caffeine rises. |
+| **Glance** | Raise your wrist | Milligrams in your system, a wedge of glowing Ember liquid in a dark glass dial, and *Clear by 6:48 PM* (when you'll drop under 50 mg). The face shifts from calm blue to wired amber as caffeine rises. |
 | **Log** | Tap **+** (top-left, the watchOS toolbar spot) | A drink list slides up. Each row shows its caffeine (e.g. *63 mg · 1 shot*) and a tiny dial previewing how much of the day it uses. Pick one and it pours into the face. |
 | **Your own drinks** | **Add more** at the end of the list | Name it (optional), set the mg with − / + or the crown, and keep *Save to list* on to have it appear under **Yours** next time. Swipe a saved drink left to delete it. |
 | **Undo** | Tap the dial within 4 seconds | A ring drains around the dial; a tap pours the drink back out. |
@@ -29,19 +29,20 @@ Motion principles, borrowed from premium watch-face reels:
 - **Staged wake-up.** On load, the glow blooms first, then the dial, the number, the text, and finally the controls.
 - **Long, smooth deceleration.** Everything eases with expo-out (`cubic-bezier(.16,1,.3,1)`), and the number's spring is tuned for glide with only a slight settle.
 - **Ripples.** Logging a drink sends three staggered rings of light outward; undo pulls them back in.
+- **Ember liquid.** The wedge glows like a low sun: gold at the core, red at the rim. Soft heat-haze bands sway through it, and its colours breathe slowly between gold and red. When it moves it sloshes, and it springs into place with no bounce.
 - **Liquid pour.** The stream is many drops melted together by an SVG goo filter. Each drop stretches as gravity speeds it up, and the stream starts thin, swells, and tapers so its tail breaks off. A small splash and pool form where it lands.
 
 Sound is kept quiet and in the background (all synthesized with Web Audio, no audio files):
 
 - Crown detents and list rows **tick**.
 - The list opens with an airy rise and closes with a fall.
-- A pour is a stream of **bubbles whose pitch rises as the cup fills**, then a soft plop and a warm three-note chime.
+- A pour is a stream of **bubbles whose pitch rises as the cup fills**, then a soft plop and a quiet two-note chime.
 - Undo plays the chime in reverse. Crossing 400 mg gives a low double pulse.
 - The stepper's pitch follows the number.
 
 There's a **Sound on/off** toggle under the watch, and the setting is remembered. Browsers only allow sound after your first click or tap.
 
-Contrast: every piece of text stays at 9:1 or better against the glow in every state (WCAG AAA is 7:1).
+Contrast: the gradient runs edge to edge, so soft dark scrims sit behind the top and bottom text. White text stays at 7:1 or better in every state, and the peach and orange labels at 4.5:1 or better.
 
 A single self-contained `index.html`, no build step.
 
