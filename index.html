@@ -66,10 +66,13 @@
   .side-btn { position: absolute; z-index: 0; right: -2.6%; top: 49%; width: 4%; height: 21%; border-radius: 2px 6px 6px 2px; background: linear-gradient(90deg, #1a1b1e, #4a4b50 60%, #202125); }
 
   .screen {
-    --c1:#03051a; --c2:#0b1a78; --c3:#2453e0; --c4:#7d95ec; --c5:#b7a3ea;
+    --f: 0;  /* 0 = calm, 1 = wired; colours blend in OKLCH so the middle stays vivid */
+    --g1: color-mix(in oklch, #1630c4, #b8430c calc(var(--f) * 100%));
+    --g2: color-mix(in oklch, #3a63ff, #ff7a2a calc(var(--f) * 100%));
+    --g3: color-mix(in oklch, #12227a, #5e1c06 calc(var(--f) * 100%));
     position: relative; aspect-ratio: 416 / 496; border-radius: 21% / 17.6%;
     overflow: hidden; isolation: isolate; container-type: inline-size;
-    background: radial-gradient(ellipse 66% 58% at 50% 54%, var(--c1) 28%, var(--c2) 50%, var(--c3) 74%, var(--c4) 92%, var(--c5) 100%);
+    background: #000;
     user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; outline: none;
   }
   .screen:focus-visible { box-shadow: inset 0 0 0 1cqw var(--tint); }
@@ -86,14 +89,14 @@
   .tb-btn svg { width: 45%; height: 45%; }
   .tb-btn:active { transform: scale(.88); }
   .tb-btn:focus-visible, .cell:focus-visible, .stepper:focus-visible, .primary:focus-visible, .field:focus-visible, .toggle:focus-visible { outline: .7cqw solid var(--tint); outline-offset: .5cqw; }
-  .add-btn { background: rgba(14,8,30,.55); box-shadow: inset 0 0 0 1px rgba(255,179,107,.35); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); z-index: 4; }
-  .add-btn:hover { background: rgba(14,8,30,.7); }
+  .add-btn { background: rgba(255,179,107,.2); z-index: 4; }
+  .add-btn:hover { background: rgba(255,179,107,.3); }
   .travel-label { position: absolute; z-index: 4; top: 7.6cqw; left: 10cqw; font-size: 6.6cqw; font-weight: 600; color: var(--tint); opacity: 0; transform: translateY(-30%); transition: opacity .25s, transform .3s; pointer-events: none; }
   .screen.travel .add-btn { opacity: 0; transform: scale(.6); pointer-events: none; }
   .screen.travel .travel-label { opacity: 1; transform: none; }
 
   /* ---------------- face ---------------- */
-  .unit { position: absolute; top: 19cqw; left: 0; right: 0; text-align: center; font-size: 3.6cqw; font-weight: 600; letter-spacing: .14em; color: rgba(255,255,255,.62); }
+  .unit { position: absolute; top: 19cqw; left: 0; right: 0; text-align: center; font-size: 3.6cqw; font-weight: 600; letter-spacing: .14em; color: rgba(255,255,255,.72); }
   .digits { position: absolute; top: 24.5cqw; left: 50%; transform: translateX(-50%); width: 38cqw; }
   .digits svg, .cdigits svg { width: 100%; display: block; overflow: visible; }
   .digits circle, .cdigits circle { fill: #fff; transition: opacity .2s; }
@@ -114,7 +117,7 @@
   @keyframes pulse { 50% { stroke-opacity: .35; } }
 
   .line { position: absolute; top: 101cqw; left: 8cqw; right: 8cqw; text-align: center; font-size: 5.4cqw; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; transition: opacity .25s, transform .25s; }
-  .line .soft { color: rgba(255,255,255,.62); font-weight: 600; }
+  .line .soft { color: rgba(255,255,255,.7); font-weight: 600; }
   .line .tint { color: var(--tint); }
   .line .warn { color: #ffd0bb; }
   .line.swap { animation: swap .32s cubic-bezier(.2,.9,.3,1.2); }
@@ -124,6 +127,9 @@
   .screen.travel .mini { opacity: 1; transform: none; }
 
   .face { position: absolute; inset: 0; transition: transform .45s cubic-bezier(.2,.9,.25,1), filter .45s, opacity .45s; }
+  /* light comes from the dial; edges stay true black (OLED) so text always sits on dark */
+  .glow { position: absolute; inset: 0; pointer-events: none;
+    background: radial-gradient(circle 62cqw at 50% 59%, var(--g1) 0, var(--g2) 23cqw, var(--g3) 37cqw, rgba(0,0,0,0) 62cqw); }
   .screen.sheet-open .face { transform: scale(.92); filter: blur(2px) brightness(.5); }
 
   /* ---------------- sheet ---------------- */
@@ -209,6 +215,7 @@
 
           <!-- ============ face ============ -->
           <div class="face" id="face">
+            <div class="glow" aria-hidden="true"></div>
             <button class="tb-btn add-btn" id="addBtn" aria-label="Add a drink">
               <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 3v14M3 10h14" stroke="#ffb36b" stroke-width="2.6" stroke-linecap="round"/></svg>
             </button>
@@ -430,16 +437,12 @@
   }
 
   /* ---------------- theme: calm blue → wired amber ---------------- */
-  const CALM  = ['#03051a', '#0b1a78', '#2453e0', '#7d95ec', '#b7a3ea'];
-  const WIRED = ['#160604', '#5c1c0a', '#d4602a', '#eaa066', '#f0c495'];
-  const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
-  const CALMr = CALM.map(hex), WIREDr = WIRED.map(hex);
   const screen = $('screen');
+  let lastF = -1;
   function theme(f) {
-    CALMr.forEach((a, i) => {
-      const b = WIREDr[i];
-      screen.style.setProperty(`--c${i + 1}`, `rgb(${a.map((v, k) => Math.round(v + (b[k] - v) * f)).join(',')})`);
-    });
+    if (Math.abs(f - lastF) < .002) return;
+    lastF = f;
+    screen.style.setProperty('--f', f.toFixed(3));
   }
 
   /* ---------------- mini timeline (while time-travelling) ---------------- */
