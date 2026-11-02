@@ -29,8 +29,9 @@ Motion principles, borrowed from premium watch-face reels:
 - **Staged wake-up.** On load, the glow blooms first, then the dial, the number, the text, and finally the controls.
 - **Long, smooth deceleration.** Everything eases with expo-out (`cubic-bezier(.16,1,.3,1)`), and the number's spring is tuned for glide with only a slight settle.
 - **Ripples.** Logging a drink sends three staggered rings of light outward; undo pulls them back in.
+- **Liquid pour.** The stream is many drops melted together by an SVG goo filter. Each drop stretches as gravity speeds it up, and the stream starts thin, swells, and tapers so its tail breaks off. A small splash and pool form where it lands.
 
-Sound (all synthesized with Web Audio, no audio files):
+Sound is kept quiet and in the background (all synthesized with Web Audio, no audio files):
 
 - Crown detents and list rows **tick**.
 - The list opens with an airy rise and closes with a fall.
