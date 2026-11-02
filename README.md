@@ -42,7 +42,7 @@ Sound is kept quiet and in the background (all synthesized with Web Audio, no au
 
 There's a **Sound on/off** toggle under the watch, and the setting is remembered. Browsers only allow sound after your first click or tap.
 
-Contrast: the gradient runs edge to edge, so soft dark pools sit just behind the clock, the + and the bottom line. White text stays at 7:1 or better in every state, and the peach and orange labels at 4.5:1 or better.
+Contrast: nothing is layered over the gradient. Instead, the clock, the *Ahead/Earlier* label and the bottom line each check the colour actually behind them as the face shifts, and switch between white and deep ink to whichever reads better. A tight shadow hugs each letter. Worst case is about 4.5:1 before counting that shadow. The + sits on its own small dark button.
 
 A single self-contained `index.html`, no build step.
 
