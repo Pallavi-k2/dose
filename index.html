@@ -4,14 +4,15 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Half-Life</title>
-<meta name="description" content="Half-Life — a caffeine clock watch interface. Log a coffee, watch it pour in and decay.">
+<meta name="description" content="Half-Life — a caffeine clock for Apple Watch. Hold to pour, turn the crown to time-travel.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root {
     --page: #050608;
-    --grid-dot: rgba(255,255,255,.09);
+    --grid-dot: rgba(255,255,255,.08);
+    --tint: #ffb36b;
     --crema: #e8b27a;
     --warn: #ff8a5c;
   }
@@ -21,64 +22,100 @@
     background: var(--page);
     background-image: radial-gradient(var(--grid-dot) 1px, transparent 1.2px);
     background-size: 14px 14px;
-    font-family: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    font-family: Inter, -apple-system, system-ui, "Segoe UI", sans-serif;
     color: #fff;
     display: grid;
     place-items: center;
     padding: 24px 16px;
     -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
   }
   body.embed { background: transparent; padding: 8px; }
 
-  .stack { position: relative; width: min(380px, 100%); padding-top: 13%; container-type: inline-size; }
-  .peek {
-    position: absolute; left: 50%;
-    border-radius: 6cqw 6cqw 0 0;
-    font-weight: 800; font-size: 6cqw; padding: 2.4cqw 5cqw;
-    transition: transform .45s cubic-bezier(.2,.8,.2,1);
-    user-select: none;
-  }
-  .peek.back { top: 0; width: 74%; height: 20cqw; transform: translateX(-50%) rotate(-1.2deg);
-    background: linear-gradient(90deg,#1f6f6a,#38a89a 45%,#1d5a63); }
-  .peek.front { top: 5cqw; width: 88%; height: 20cqw; transform: translateX(-50%) rotate(1.4deg);
-    background: linear-gradient(90deg,#5b3bd6,#7d4fe0 55%,#a165e8); }
-  .stack:hover .peek.back { transform: translateX(-50%) translateY(-1.5cqw) rotate(-2deg); }
-  .stack:hover .peek.front { transform: translateX(-50%) translateY(-.8cqw) rotate(2deg); }
+  .stage { display: flex; flex-direction: column; align-items: center; gap: 28px; }
 
-  .card {
+  /* ---------------- the watch ---------------- */
+  .watch { position: relative; width: min(300px, 74vw); margin: 34% 0; }
+  .band {
+    position: absolute; left: 13%; right: 13%; height: 46%; z-index: 0;
+    background:
+      repeating-linear-gradient(0deg, rgba(255,255,255,.035) 0 2px, transparent 2px 5px),
+      linear-gradient(90deg, #15161a, #2a2c32 50%, #15161a);
+  }
+  .band.top { bottom: 88%; border-radius: 14% 14% 0 0 / 10% 10% 0 0; -webkit-mask: linear-gradient(to top, #000 55%, transparent); mask: linear-gradient(to top, #000 55%, transparent); }
+  .band.bottom { top: 88%; border-radius: 0 0 14% 14% / 0 0 10% 10%; -webkit-mask: linear-gradient(to bottom, #000 55%, transparent); mask: linear-gradient(to bottom, #000 55%, transparent); }
+
+  .case {
+    position: relative; z-index: 1;
+    padding: 4.4%;
+    border-radius: 25% / 21%;
+    background: linear-gradient(150deg, #55565c 0%, #1d1e22 28%, #0c0c0e 60%, #2e2f34 100%);
+    box-shadow:
+      inset 0 0 0 1px rgba(255,255,255,.14),
+      inset 0 2px 3px rgba(255,255,255,.22),
+      inset 0 -2px 4px rgba(0,0,0,.6),
+      0 30px 70px rgba(0,0,0,.65);
+  }
+  .crown {
+    position: absolute; z-index: 0; right: -5.2%; top: 23%;
+    width: 7.5%; height: 17%;
+    border-radius: 3px 9px 9px 3px;
+    --rot: 0px;
+    background:
+      linear-gradient(90deg, rgba(0,0,0,.55), transparent 35%, rgba(255,255,255,.12) 70%, rgba(0,0,0,.4)),
+      repeating-linear-gradient(0deg, #74757b 0 1.5px, #2a2b2f 1.5px 3.5px);
+    background-position: 0 0, 0 var(--rot);
+    box-shadow: 0 2px 6px rgba(0,0,0,.6);
+    cursor: ns-resize; touch-action: none;
+  }
+  .crown::after { /* the crown's red-free cap edge */
+    content: ""; position: absolute; right: -1px; top: 8%; bottom: 8%; width: 18%;
+    border-radius: 0 9px 9px 0; background: linear-gradient(90deg, #3a3b40, #8a8b90 60%, #3a3b40);
+  }
+  .side-btn {
+    position: absolute; z-index: 0; right: -2.6%; top: 49%; width: 4%; height: 21%;
+    border-radius: 2px 6px 6px 2px;
+    background: linear-gradient(90deg, #1a1b1e, #4a4b50 60%, #202125);
+  }
+
+  .screen {
     --c1:#03051a; --c2:#0b1a78; --c3:#2453e0; --c4:#7d95ec; --c5:#b7a3ea;
     position: relative;
-    aspect-ratio: 530 / 840;
-    border-radius: 7cqw;
+    aspect-ratio: 416 / 496;
+    border-radius: 21% / 17.6%;
     overflow: hidden;
     isolation: isolate;
-    background: radial-gradient(ellipse 62% 58% at 50% 48%, var(--c1) 26%, var(--c2) 48%, var(--c3) 72%, var(--c4) 90%, var(--c5) 100%);
-    box-shadow: 0 2cqw 8cqw color-mix(in srgb, var(--c3) 30%, transparent);
-    user-select: none;
-    -webkit-user-select: none;
+    container-type: inline-size;
+    background: radial-gradient(ellipse 66% 58% at 50% 54%, var(--c1) 28%, var(--c2) 50%, var(--c3) 74%, var(--c4) 92%, var(--c5) 100%);
+    user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+    outline: none;
   }
-  .card::after {
-    content: ""; position: absolute; inset: 0; z-index: -1; opacity: .07; pointer-events: none;
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence baseFrequency='.9'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+  .screen:focus-visible { box-shadow: inset 0 0 0 1cqw var(--tint); }
+  .screen::after {
+    content: ""; position: absolute; inset: 0; z-index: 5; pointer-events: none;
+    background: radial-gradient(ellipse 120% 90% at 20% -10%, rgba(255,255,255,.07), transparent 55%);
   }
 
-  .title { position: absolute; left: 7cqw; top: 6cqw; font-weight: 800; font-size: 7.6cqw; line-height: 1.02; letter-spacing: -.02em; }
-  .title span { display: block; color: rgba(255,255,255,.55); }
-  .sleep .val.soft { color: rgba(255,255,255,.55); }
+  /* ---------------- face ---------------- */
+  .status { position: absolute; top: 6.5cqw; left: 10cqw; right: 10cqw; display: flex; justify-content: space-between; align-items: baseline; font-size: 6.6cqw; font-weight: 600; letter-spacing: -.01em; }
+  .status .app { color: var(--tint); transition: color .3s; }
+  .status .clock { font-variant-numeric: tabular-nums; transition: color .3s; }
+  .screen.travel .status .clock { color: var(--tint); }
 
-  .sleep { position: absolute; right: 7cqw; top: 6.6cqw; text-align: right; }
-  .sleep .lbl { font-size: 2.7cqw; font-weight: 600; letter-spacing: .12em; color: rgba(255,255,255,.6); text-transform: uppercase; }
-  .sleep .val { font-size: 6.4cqw; font-weight: 800; letter-spacing: -.02em; line-height: 1.15; display: inline-block; font-variant-numeric: tabular-nums; }
-  .sleep .moon { display: inline-block; width: 1.6cqw; height: 1.6cqw; border-radius: 50%; box-shadow: -.5cqw .2cqw 0 0 #fff; transform: translateY(-.3cqw); margin-right: 1cqw; }
-
-  .unit { position: absolute; top: 22cqw; left: 0; right: 0; text-align: center; font-size: 4cqw; font-weight: 500; color: rgba(255,255,255,.65); letter-spacing: .06em; }
-  .digits { position: absolute; top: 28cqw; left: 50%; transform: translateX(-50%); width: 42cqw; }
+  .unit { position: absolute; top: 19cqw; left: 0; right: 0; text-align: center; font-size: 3.6cqw; font-weight: 600; letter-spacing: .14em; color: rgba(255,255,255,.62); }
+  .digits { position: absolute; top: 24.5cqw; left: 50%; transform: translateX(-50%); width: 38cqw; }
   .digits svg { width: 100%; display: block; overflow: visible; }
-  .digits circle { fill: #fff; transition: opacity .22s; }
-  .card.over .digits circle { fill: #ffd2bd; }
-  .bump { position: absolute; top: 25cqw; left: 72%; font-size: 3.6cqw; font-weight: 700; color: var(--crema); pointer-events: none; white-space: nowrap; }
+  .digits circle { fill: #fff; transition: opacity .2s; }
+  .screen.over .digits circle { fill: #ffd2bd; }
+  .bump { position: absolute; top: 20cqw; left: 71%; font-size: 4.2cqw; font-weight: 700; color: var(--crema); pointer-events: none; white-space: nowrap; }
 
-  .dial-wrap { position: absolute; top: 48cqw; left: 50%; transform: translateX(-50%); width: 62cqw; aspect-ratio: 1; }
+  .dial-wrap {
+    position: absolute; top: 42cqw; left: 50%; width: 56cqw; aspect-ratio: 1;
+    transform: translateX(-50%) scale(var(--s, 1));
+    transition: transform .28s cubic-bezier(.2,.9,.3,1.3);
+    touch-action: none; cursor: pointer;
+  }
+  .dial-wrap.press { --s: .955; }
   .disc {
     position: absolute; inset: 12%; border-radius: 50%;
     --a: 0;
@@ -88,88 +125,88 @@
   }
   .fx { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
   .ring { stroke: rgba(255,255,255,.35); transition: stroke .4s; }
-  .card.over .ring { stroke: var(--warn); animation: pulse 1.1s ease-in-out infinite; }
+  .screen.over .ring { stroke: var(--warn); animation: pulse 1.1s ease-in-out infinite; }
   @keyframes pulse { 50% { stroke-opacity: .35; } }
-  .tick { position: absolute; font-size: 3cqw; font-weight: 500; color: rgba(255,255,255,.6); transform: translate(-50%,-50%); font-variant-numeric: tabular-nums; }
-
-  .chips { position: absolute; top: 113cqw; left: 0; right: 0; display: flex; justify-content: center; gap: 1.6cqw; }
-  .chip {
-    font: 600 3.1cqw/1 Inter, system-ui, sans-serif; color: #fff;
-    padding: 1.7cqw 2.5cqw; border-radius: 99px; border: 1px solid rgba(255,255,255,.28);
-    background: rgba(255,255,255,.08); backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    cursor: pointer; transition: transform .2s cubic-bezier(.2,.9,.3,1.4), background .2s, border-color .2s;
+  .hint {
+    position: absolute; left: 0; right: 0; top: 66%; text-align: center; pointer-events: none;
+    font-size: 3.4cqw; font-weight: 600; color: rgba(30,40,70,.55); letter-spacing: .02em;
+    animation: breathe 2.4s ease-in-out infinite; transition: opacity .5s;
   }
-  .chip:hover { background: rgba(255,255,255,.18); border-color: rgba(255,255,255,.5); }
-  .chip:active { transform: scale(.92); }
-  .chip:focus-visible { outline: .6cqw solid var(--crema); outline-offset: .4cqw; }
+  .hint.gone, .dial-wrap.press .hint { opacity: 0; animation: none; }
+  @keyframes breathe { 50% { opacity: .45; } }
 
-  .timeline { position: absolute; left: 0; right: 0; bottom: 3.5cqw; height: 31cqw; touch-action: none; cursor: ew-resize; outline: none; }
-  .timeline svg { position: absolute; top: 0; left: 0; width: 100%; height: auto; overflow: visible; }
-  .timeline:focus-visible .playline { stroke: var(--crema); }
-  .marker { cursor: pointer; pointer-events: all; }
-  .labels { position: absolute; left: 3cqw; right: 3cqw; bottom: 0; display: flex; justify-content: space-between; font-size: 3.3cqw; color: rgba(255,255,255,.8); font-weight: 500; text-shadow: 0 0 2cqw rgba(0,0,40,.35); }
-  .time-tag { position: absolute; transform: translate(-50%, -160%); font-size: 3cqw; font-weight: 600; background: rgba(0,0,0,.35); padding: .6cqw 1.6cqw; border-radius: 99px; pointer-events: none; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .time-tag i { display: inline-block; width: 1.3cqw; height: 1.3cqw; border-radius: 50%; background: #7dffa8; margin-right: 1cqw; vertical-align: .15cqw; animation: blink 1.6s ease-in-out infinite; }
-  .time-tag.paused i { background: rgba(255,255,255,.5); animation: none; }
-  @keyframes blink { 50% { opacity: .25; } }
+  .line {
+    position: absolute; top: 101cqw; left: 8cqw; right: 8cqw; text-align: center;
+    font-size: 5.4cqw; font-weight: 700; letter-spacing: -.01em; white-space: nowrap;
+    transition: opacity .25s, transform .25s;
+  }
+  .line .soft { color: rgba(255,255,255,.62); font-weight: 600; }
+  .line .tint { color: var(--tint); }
+  .line .warn { color: #ffd0bb; }
+  .line.swap { animation: swap .32s cubic-bezier(.2,.9,.3,1.2); }
+  @keyframes swap { from { opacity: 0; transform: translateY(40%); } }
+  .screen.travel .line { opacity: 0; transform: translateY(30%); }
+
+  .mini { position: absolute; top: 94cqw; left: 9cqw; width: 82cqw; height: auto; overflow: visible; opacity: 0; transform: translateY(25%); transition: opacity .3s, transform .35s cubic-bezier(.2,.9,.3,1.2); pointer-events: none; }
+  .screen.travel .mini { opacity: 1; transform: none; }
+
+  .caption { display: flex; gap: 18px; flex-wrap: wrap; justify-content: center; font-size: 13px; color: rgba(255,255,255,.55); font-weight: 500; }
+  .caption b { color: rgba(255,255,255,.9); font-weight: 600; }
   .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 
   @media (prefers-reduced-motion: reduce) { * { transition: none !important; animation: none !important; } }
 </style>
 </head>
 <body>
-  <div class="stack">
-    <div class="peek back" aria-hidden="true"></div>
-    <div class="peek front" aria-hidden="true">Sleep</div>
+  <div class="stage">
+    <div class="watch" id="watch">
+      <div class="band top" aria-hidden="true"></div>
+      <div class="band bottom" aria-hidden="true"></div>
+      <div class="crown" id="crown" aria-hidden="true"></div>
+      <div class="side-btn" aria-hidden="true"></div>
 
-    <div class="card" id="card">
-      <div class="title">Half<span>Life</span></div>
-      <div class="sleep" aria-hidden="true">
-        <div class="lbl">Sleep-safe</div>
-        <div class="val" id="sleepVal">--:--</div>
+      <div class="case">
+        <div class="screen" id="screen" tabindex="0" role="group"
+             aria-label="Half-Life caffeine clock. Hold Space to pour a drink. Up and down arrows turn the crown to look ahead or back in time.">
+          <div class="status"><span class="app" id="app">Half-Life</span><span class="clock" id="clock">3:30</span></div>
+
+          <div class="unit">MG</div>
+          <div class="digits"><svg id="digits" aria-hidden="true"></svg></div>
+
+          <div class="dial-wrap" id="dial">
+            <div class="disc" id="disc"></div>
+            <svg class="fx" viewBox="0 0 100 100" aria-hidden="true">
+              <defs>
+                <radialGradient id="coffee" cx="50" cy="50" r="38" gradientUnits="userSpaceOnUse">
+                  <stop offset="0" stop-color="#1c0c05"/>
+                  <stop offset=".55" stop-color="#4a2410"/>
+                  <stop offset=".88" stop-color="#9a5e2c"/>
+                  <stop offset="1" stop-color="#e2a86c"/>
+                </radialGradient>
+                <clipPath id="wedgeClip"><path id="clipPath"/></clipPath>
+              </defs>
+              <circle class="ring" cx="50" cy="50" r="46.5" fill="none" stroke-width=".7" stroke-dasharray=".1 1.6" stroke-linecap="round"/>
+              <circle id="undoRing" cx="50" cy="50" r="46.5" fill="none" stroke="#ffe0bd" stroke-width="1.3" stroke-linecap="round" transform="rotate(-90 50 50)" stroke-dasharray="0 400"/>
+              <g id="ticks"></g>
+              <path id="wedge" fill="url(#coffee)"/>
+              <g id="fizz" clip-path="url(#wedgeClip)"></g>
+              <polyline id="edge" fill="none" stroke="rgba(255,226,186,.75)" stroke-width=".55" stroke-linecap="round" stroke-linejoin="round"/>
+              <g id="drops"></g>
+            </svg>
+            <div class="hint" id="hint">Hold to pour</div>
+          </div>
+
+          <div class="line" id="line"></div>
+          <svg class="mini" id="mini" viewBox="0 0 300 52" aria-hidden="true"></svg>
+
+          <div class="sr" aria-live="polite" id="status"></div>
+        </div>
       </div>
+    </div>
 
-      <div class="unit">MG</div>
-      <div class="digits"><svg id="digits" aria-hidden="true"></svg></div>
-
-      <div class="dial-wrap">
-        <div class="disc" id="disc"></div>
-        <svg class="fx" id="fx" viewBox="0 0 100 100" aria-hidden="true">
-          <defs>
-            <radialGradient id="coffee" cx="50" cy="50" r="38" gradientUnits="userSpaceOnUse">
-              <stop offset="0" stop-color="#1c0c05"/>
-              <stop offset=".55" stop-color="#4a2410"/>
-              <stop offset=".88" stop-color="#9a5e2c"/>
-              <stop offset="1" stop-color="#e2a86c"/>
-            </radialGradient>
-            <clipPath id="wedgeClip"><path id="clipPath"/></clipPath>
-          </defs>
-          <circle class="ring" cx="50" cy="50" r="46" fill="none" stroke-width=".7" stroke-dasharray=".1 1.6" stroke-linecap="round"/>
-          <path id="wedge" fill="url(#coffee)"/>
-          <g id="fizz" clip-path="url(#wedgeClip)"></g>
-          <polyline id="edge" fill="none" stroke="rgba(255,226,186,.75)" stroke-width=".55" stroke-linecap="round" stroke-linejoin="round"/>
-          <g id="drops"></g>
-        </svg>
-        <span class="tick" style="left:50%;top:0%">0</span>
-        <span class="tick" style="left:100%;top:50%">100</span>
-        <span class="tick" style="left:50%;top:100%">200</span>
-        <span class="tick" style="left:0%;top:50%">300</span>
-      </div>
-
-      <div class="chips" role="group" aria-label="Log a drink">
-        <button class="chip" data-mg="63" data-name="Espresso">Espresso</button>
-        <button class="chip" data-mg="95" data-name="Coffee">Coffee</button>
-        <button class="chip" data-mg="70" data-name="Matcha">Matcha</button>
-        <button class="chip" data-mg="200" data-name="Cold brew">Cold brew</button>
-      </div>
-
-      <div class="timeline" id="timeline" role="slider" tabindex="0" aria-label="Time of day" aria-valuemin="360" aria-valuemax="1440">
-        <svg id="tl" viewBox="0 0 300 70"></svg>
-        <div class="time-tag" id="timeTag"><i></i><span></span></div>
-        <div class="labels"><span>06:00</span><span>12:00</span><span>18:00</span><span>24:00</span></div>
-      </div>
-
-      <div class="sr" aria-live="polite" id="status"></div>
+    <div class="caption" aria-hidden="true">
+      <span><b>Hold</b> the dial to pour</span>
+      <span><b>Scroll</b> or drag the crown to time-travel</span>
     </div>
   </div>
 
@@ -185,26 +222,42 @@
     if (parent) parent.appendChild(el);
     return el;
   };
+  const buzz = ms => { try { navigator.vibrate && navigator.vibrate(ms); } catch (e) {} };
 
-  /* ---------- model ---------- */
-  const DAY0 = 360, DAY1 = 1440;      // 06:00 → 24:00, minutes
+  /* ---------------- model ---------------- */
+  const DAY0 = 360, DAY1 = 1500;      // 6:00 → 1:00 next day (minutes)
   const HALF = 300;                   // caffeine half-life ≈ 5 h
-  const SAFE = 50;                    // mg considered fine for sleep
-  const SCALE = 400;                  // full dial = 400 mg (daily guideline)
+  const SAFE = 50;                    // "clear" threshold, mg
+  const SCALE = 400;                  // full dial = 400 mg daily guideline
   const SIM_SPEED = 1 / 1.2;          // sim minutes per real second
+  const SIZES = [
+    { name: 'Espresso', mg: 63 },
+    { name: 'Coffee',   mg: 95 },
+    { name: 'Large',    mg: 150 },
+    { name: 'Cold brew', mg: 200 },
+  ];
+  const ARM_MS = 240;                 // hold this long before anything pours
+  const POUR_RATE = 78;               // mg per second while holding
+  const UNDO_MS = 4000;
+
   let nextId = 1;
-  const state = { now: 930, doses: [], shown: 0, vel: 0, amp: 0, phase: 0, dragging: false };
+  const S = {
+    now: 930, travel: 0, lastCrown: -1e9,
+    doses: [], shown: 0, vel: 0, amp: 0, phase: 0,
+    hold: null, undo: null, flash: null, poured: false,
+  };
 
-  const levelAt = t => state.doses.reduce((c, d) => d.t <= t ? c + d.mg * Math.pow(.5, (t - d.t) / HALF) : c, 0);
-  function sleepSafe() {
-    if (!state.doses.length) return null;
-    const last = Math.max(...state.doses.map(d => d.t));
-    for (let t = last; t < DAY1 + 720; t += 2) if (levelAt(t) < SAFE) return t;
-    return DAY1 + 720;
+  const levelAt = t => S.doses.reduce((c, d) => d.t <= t ? c + d.mg * Math.pow(.5, (t - d.t) / HALF) : c, 0);
+  function clearTime() {
+    if (levelAt(S.now) < SAFE) return null;
+    for (let t = S.now; t < S.now + 3000; t += 2) if (levelAt(t) < SAFE) return t;
+    return null;
   }
-  const fmt = m => { m = Math.round(m) % 1440; return `${String(Math.floor(m / 60)).padStart(2, '0')}:${String(m % 60).padStart(2, '0')}`; };
+  const clock12 = m => { m = ((Math.round(m) % 1440) + 1440) % 1440; const h = Math.floor(m / 60) % 12 || 12; return `${h}:${String(m % 60).padStart(2, '0')}`; };
+  const ampm = m => (((Math.round(m) % 1440) + 1440) % 1440) < 720 ? 'AM' : 'PM';
+  const dur = m => { m = Math.round(Math.abs(m)); const h = Math.floor(m / 60), mm = m % 60; return h ? `${h}h ${String(mm).padStart(2, '0')}m` : `${mm}m`; };
 
-  /* ---------- dot-matrix digits ---------- */
+  /* ---------------- dot-matrix digits ---------------- */
   const FONT = {
     0:['01110','10001','10011','10101','11001','10001','01110'],
     1:['00100','01100','00100','00100','00100','00100','01110'],
@@ -226,7 +279,7 @@
     for (let r = 0; r < ROWS; r++) for (let c = 0; c < COLS; c++) {
       const el = mk('circle', { cx: d * (COLS + GAP) + c, cy: r, r: .36 }, digitsSvg);
       el.style.opacity = 0;
-      el.style.transitionDelay = `${r * 9}ms`;   // glyphs fill top → bottom, like a pour
+      el.style.transitionDelay = `${r * 9}ms`;   // fills top → bottom, like a pour
       cells[d].push({ el, r, c });
     }
   }
@@ -240,12 +293,12 @@
       const g = FONT[ch], dim = d < lead;
       cells[d].forEach(({ el, r, c }) => {
         const on = g[(r / SUB) | 0][(c / SUB) | 0] === '1';
-        el.style.opacity = on ? (dim ? .22 : 1) : .035;
+        el.style.opacity = on ? (dim ? .2 : 1) : .035;
       });
     });
   }
 
-  /* ---------- dial ---------- */
+  /* ---------------- dial ---------------- */
   const R = 38;
   const pt = (r, a) => { const q = a * Math.PI / 180; return [50 + r * Math.sin(q), 50 - r * Math.cos(q)]; };
   function wedgeGeom(A, amp, phase) {
@@ -255,11 +308,10 @@
     let d = `M50 50 L50 12 A${R} ${R} 0 ${A > 180 ? 1 : 0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
     const q = A * Math.PI / 180, px = Math.cos(q), py = Math.sin(q);
     const pts = [];
-    const n = 16;
-    for (let i = 0; i <= n; i++) {
-      const f = i / n, r = R * (1 - f);
+    for (let i = 0; i <= 16; i++) {
+      const f = i / 16;
       const off = amp * 2.6 * Math.sin(f * Math.PI) * Math.sin(f * 8 + phase);
-      const [bx, by] = pt(r, A);
+      const [bx, by] = pt(R * (1 - f), A);
       pts.push(`${(bx + px * off).toFixed(2)},${(by + py * off).toFixed(2)}`);
     }
     d += ' L' + pts.slice(1).join(' L') + ' Z';
@@ -273,170 +325,253 @@
     particles.push(p);
   }
 
-  /* ---------- theme: calm blue → wired amber ---------- */
+  // size ticks that appear on the ring while pouring
+  const ticksG = $('ticks');
+  const ticks = SIZES.map(() => mk('line', { 'stroke-width': 1.4, 'stroke-linecap': 'round', opacity: 0 }, ticksG));
+
+  /* ---------------- theme: calm blue → wired amber ---------------- */
   const CALM  = ['#03051a', '#0b1a78', '#2453e0', '#7d95ec', '#b7a3ea'];
   const WIRED = ['#160604', '#5c1c0a', '#d4602a', '#eaa066', '#f0c495'];
   const hex = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
   const CALMr = CALM.map(hex), WIREDr = WIRED.map(hex);
-  const card = $('card');
+  const screen = $('screen');
   function theme(f) {
     CALMr.forEach((a, i) => {
       const b = WIREDr[i];
-      card.style.setProperty(`--c${i + 1}`, `rgb(${a.map((v, k) => Math.round(v + (b[k] - v) * f)).join(',')})`);
+      screen.style.setProperty(`--c${i + 1}`, `rgb(${a.map((v, k) => Math.round(v + (b[k] - v) * f)).join(',')})`);
     });
   }
 
-  /* ---------- timeline ---------- */
-  const tl = $('tl');
-  const X0 = 8, X1 = 292, BASE = 60, TOP = 6, NDOTS = 72;
+  /* ---------------- mini timeline (shown only while time-travelling) ---------------- */
+  const mini = $('mini');
+  const X0 = 6, X1 = 294, BASE = 46, TOP = 6, NDOTS = 48;
   const xAt = m => X0 + (X1 - X0) * (Math.min(DAY1, Math.max(DAY0, m)) - DAY0) / (DAY1 - DAY0);
-  let yMax = 250;
+  let yMax = 170;
   const yAt = mg => BASE - (BASE - TOP) * Math.min(1, mg / yMax);
-  mk('line', { x1: X0, x2: X1, y1: BASE, y2: BASE, stroke: 'rgba(255,255,255,.25)', 'stroke-width': .6 }, tl);
-  const safeLine = mk('line', { x1: X0, x2: X1, stroke: 'rgba(160,190,255,.45)', 'stroke-width': .6, 'stroke-dasharray': '2 2' }, tl);
-  const curveG = mk('g', {}, tl);
-  const curveDots = [];
-  for (let i = 0; i <= NDOTS; i++) curveDots.push(mk('circle', { r: 1.05 }, curveG));
-  const moon = mk('g', {}, tl);
-  mk('circle', { r: 3, fill: 'rgba(10,10,40,.55)', stroke: '#fff', 'stroke-width': .7 }, moon);
-  mk('path', { d: 'M.6 -1.7 A1.8 1.8 0 1 0 .6 1.7 A1.35 1.35 0 1 1 .6 -1.7 Z', fill: '#fff' }, moon);
-  const markersG = mk('g', {}, tl);
-  const playline = mk('line', { class: 'playline', stroke: 'rgba(255,255,255,.8)', 'stroke-width': 1 }, tl);
-  const playTop = mk('circle', { r: 3, fill: '#fff', stroke: '#c07a3e', 'stroke-width': 1.5 }, tl);
-  const playBot = mk('circle', { r: 2.4, fill: '#fff' }, tl);
-  let sleepX = null;
+  mk('line', { x1: X0, x2: X1, y1: BASE, y2: BASE, stroke: 'rgba(255,255,255,.25)', 'stroke-width': .8 }, mini);
+  const safeLine = mk('line', { x1: X0, x2: X1, stroke: 'rgba(255,255,255,.35)', 'stroke-width': .8, 'stroke-dasharray': '2 3' }, mini);
+  const curve = [];
+  for (let i = 0; i <= NDOTS; i++) curve.push(mk('circle', { r: 2 }, mini));
+  const markers = mk('g', {}, mini);
+  const nowTick = mk('line', { stroke: 'rgba(255,255,255,.55)', 'stroke-width': 1, 'stroke-dasharray': '1.5 2' }, mini);
+  const head = mk('line', { stroke: '#fff', 'stroke-width': 2 }, mini);
+  const headDot = mk('circle', { r: 5, fill: '#fff', stroke: '#c07a3e', 'stroke-width': 2.2 }, mini);
 
   function rebuild() {
     let peak = 0;
     for (let i = 0; i <= NDOTS; i++) peak = Math.max(peak, levelAt(DAY0 + (DAY1 - DAY0) * i / NDOTS));
-    yMax = Math.max(170, peak * 1.12);
-    curveDots.forEach((c, i) => {
+    yMax = Math.max(170, peak * 1.15);
+    curve.forEach((c, i) => {
       const m = DAY0 + (DAY1 - DAY0) * i / NDOTS;
       c.setAttribute('cx', xAt(m).toFixed(2));
       c.setAttribute('cy', yAt(levelAt(m)).toFixed(2));
       c.dataset.m = m;
     });
     safeLine.setAttribute('y1', yAt(SAFE)); safeLine.setAttribute('y2', yAt(SAFE));
-    markersG.replaceChildren();
-    state.doses.forEach(d => {
-      const g = mk('g', { class: 'marker', transform: `translate(${xAt(d.t).toFixed(2)},${BASE})`, 'data-id': d.id }, markersG);
-      mk('circle', { r: 4.5, fill: 'transparent' }, g);
-      mk('circle', { r: 2, fill: '#e8b27a', stroke: 'rgba(0,0,0,.35)', 'stroke-width': .5 }, g);
-      mk('title', {}, g).textContent = `${d.name} · ${d.mg} mg at ${fmt(d.t)} — click to remove`;
-    });
-    const s = sleepSafe();
-    moon.style.display = s === null ? 'none' : '';
-    const val = $('sleepVal');
-    const txt = s === null ? '--:--' : fmt(s);
-    if (val.textContent !== txt) {
-      val.textContent = txt;
-      if (!reduce) val.animate([{ transform: 'translateY(45%)', opacity: 0 }, { transform: 'none', opacity: 1 }], { duration: 380, easing: 'cubic-bezier(.2,.9,.3,1.2)' });
-    }
-    val.classList.toggle('soft', s === null);
+    markers.replaceChildren();
+    S.doses.forEach(d => mk('circle', { cx: xAt(d.t).toFixed(2), cy: BASE, r: 3.6, fill: '#e8b27a' }, markers));
   }
 
-  /* ---------- pouring ---------- */
-  const drops = $('drops');
-  const live = [];   // falling droplets
-  const rings = [];  // splash rings
-  function addDose(name, mg) {
-    state.doses.push({ id: nextId++, t: state.now, mg, name });
-    state.amp = Math.min(1.4, state.amp + 1);
-    rebuild();
-    announce(`Logged ${name}, ${mg} milligrams.`);
+  /* ---------------- bottom line ---------------- */
+  const line = $('line');
+  let lineKey = '';
+  function setLine(key, html) {
+    if (key === lineKey) return;
+    lineKey = key;
+    line.innerHTML = html;
+    if (!reduce) { line.classList.remove('swap'); void line.offsetWidth; line.classList.add('swap'); }
   }
-  function bump(mg) {
+
+  /* ---------------- effects ---------------- */
+  const drops = $('drops');
+  const live = [], rings = [];
+  function splash(inward) {
+    rings.push({ t: 0, inward, el: mk('circle', { cx: 50, cy: 50, r: 0, fill: 'none', stroke: '#ffe0bd', 'stroke-width': 1.2 }, drops) });
+  }
+  function bump(text) {
     if (reduce) return;
     const b = document.createElement('div');
-    b.className = 'bump'; b.textContent = `+${mg}`;
-    card.appendChild(b);
-    b.animate([{ transform: 'translateY(2cqw)', opacity: 0 }, { opacity: 1, offset: .2 }, { transform: 'translateY(-5cqw)', opacity: 0 }], { duration: 1300, easing: 'ease-out' }).onfinish = () => b.remove();
+    b.className = 'bump'; b.textContent = text;
+    screen.appendChild(b);
+    b.animate([{ transform: 'translateY(2cqw)', opacity: 0 }, { opacity: 1, offset: .2 }, { transform: 'translateY(-5cqw)', opacity: 0 }],
+      { duration: 1300, easing: 'ease-out' }).onfinish = () => b.remove();
   }
-  function pour(name, mg) {
-    bump(mg);
-    if (reduce) { addDose(name, mg); return; }
-    const count = 8 + Math.round(mg / 20);
-    const pourId = {};
-    for (let i = 0; i < count; i++) {
-      live.push({
-        x: 50 + (Math.random() - .5) * 2.4, y: -20, vy: 0, delay: i * .028,
-        r: .55 + Math.random() * .9, pour: pourId, first: i === 0, name, mg,
-        el: mk('circle', { r: 0, fill: '#e8b27a' }, drops),
-      });
-    }
-  }
-  document.querySelectorAll('.chip').forEach(b => b.addEventListener('click', () => pour(b.dataset.name, +b.dataset.mg)));
+  const status = $('status');
+  const say = msg => { status.textContent = msg; };
 
-  /* ---------- timeline interaction ---------- */
-  const timeline = $('timeline');
-  function scrubTo(e) {
-    const b = tl.getBoundingClientRect();
-    const x = (e.clientX - b.left) / b.width * 300;
-    state.now = DAY0 + (DAY1 - DAY0) * Math.min(1, Math.max(0, (x - X0) / (X1 - X0)));
+  /* ---------------- hold to pour ---------------- */
+  const dial = $('dial'), hint = $('hint');
+
+  function startHold(id, x, y) {
+    if (Math.abs(S.travel) > 1) { S.lastCrown = -1e9; return false; }  // a press while travelling returns to now
+    S.hold = { t0: performance.now(), id, x, y, armed: false, pending: 0, stage: -1, lastDrop: 0 };
+    dial.classList.add('press');
+    return true;
   }
-  timeline.addEventListener('pointerdown', e => {
-    const m = e.target.closest('.marker');
-    if (m) {
-      state.doses = state.doses.filter(d => d.id !== +m.dataset.id);
-      state.amp = Math.min(1.4, state.amp + .6);
-      rebuild(); announce('Drink removed.');
+  function cancelHold() {
+    if (!S.hold) return;
+    S.hold = null; dial.classList.remove('press');
+  }
+  function endHold() {
+    const h = S.hold;
+    if (!h) return;
+    cancelHold();
+    if (!h.armed) {                       // a quick tap
+      if (S.undo) doUndo();
       return;
     }
-    state.dragging = true; timeline.setPointerCapture(e.pointerId); scrubTo(e);
-  });
-  timeline.addEventListener('pointermove', e => { if (state.dragging) scrubTo(e); });
-  const endDrag = () => { state.dragging = false; };
-  timeline.addEventListener('pointerup', endDrag);
-  timeline.addEventListener('pointercancel', endDrag);
-  timeline.addEventListener('keydown', e => {
-    const step = e.shiftKey ? 60 : 15;
-    if (e.key === 'ArrowRight' || e.key === 'ArrowUp') state.now = Math.min(DAY1, state.now + step);
-    else if (e.key === 'ArrowLeft' || e.key === 'ArrowDown') state.now = Math.max(DAY0, state.now - step);
-    else return;
-    e.preventDefault();
-  });
-
-  const status = $('status');
-  let lastAnnounce = '';
-  function announce(extra = '') {
-    const s = sleepSafe();
-    const msg = `${extra} ${Math.round(levelAt(state.now))} milligrams of caffeine at ${fmt(state.now)}.` + (s !== null ? ` Sleep-safe from ${fmt(s)}.` : '');
-    if (msg !== lastAnnounce) { status.textContent = msg; lastAnnounce = msg; }
+    if (h.stage < 0) {                    // let go before the first size
+      S.amp += .6;
+      S.flash = { until: performance.now() + 1400, key: 'short', html: '<span class="soft">Hold a little longer</span>' };
+      return;
+    }
+    const size = SIZES[h.stage];
+    const dose = { id: nextId++, t: S.now, mg: size.mg, name: size.name };
+    S.doses.push(dose);
+    S.undo = { until: performance.now() + UNDO_MS, id: dose.id, name: size.name };
+    S.amp = Math.min(1.6, S.amp + 1);
+    S.poured = true; hint.classList.add('gone');
+    splash(false); bump(`+${size.mg}`); buzz(18);
+    rebuild();
+    say(`Logged ${size.name}, ${size.mg} milligrams. Tap within 4 seconds to undo.`);
+  }
+  function doUndo() {
+    const u = S.undo; S.undo = null;
+    S.doses = S.doses.filter(d => d.id !== u.id);
+    S.amp = Math.min(1.6, S.amp + .8);
+    splash(true); buzz([8, 40, 8]);
+    S.flash = { until: performance.now() + 1400, key: 'undone', html: `<span class="soft">Undid</span> ${u.name}` };
+    rebuild();
+    say(`${u.name} removed.`);
   }
 
-  /* ---------- frame loop ---------- */
-  const wedge = $('wedge'), clip = $('clipPath'), edge = $('edge'), disc = $('disc'), fx = $('fx');
-  const timeTag = $('timeTag'), timeTxt = timeTag.querySelector('span');
+  dial.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    if (startHold(e.pointerId, e.clientX, e.clientY)) dial.setPointerCapture(e.pointerId);
+  });
+  dial.addEventListener('pointermove', e => {
+    const h = S.hold;
+    if (h && !h.armed && h.id === e.pointerId && Math.hypot(e.clientX - h.x, e.clientY - h.y) > 14) cancelHold();
+  });
+  dial.addEventListener('pointerup', e => { if (S.hold && S.hold.id === e.pointerId) endHold(); });
+  dial.addEventListener('pointercancel', cancelHold);
+  dial.addEventListener('contextmenu', e => e.preventDefault());
+
+  /* ---------------- digital crown ---------------- */
+  const watch = $('watch'), crown = $('crown');
+  let crownRot = 0, lastDetent = 0;
+  function turnCrown(minutes) {
+    cancelHold();
+    const lo = DAY0 - S.now, hi = DAY1 - S.now;
+    S.travel = Math.max(lo, Math.min(hi, S.travel + minutes));
+    S.lastCrown = performance.now();
+    crownRot += minutes * .35;
+    crown.style.setProperty('--rot', `${crownRot.toFixed(1)}px`);
+    const det = Math.round(S.travel / 30);   // a "detent" every 30 min
+    if (det !== lastDetent) { lastDetent = det; buzz(4); }
+  }
+  watch.addEventListener('wheel', e => {
+    e.preventDefault();
+    const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1;
+    turnCrown(e.deltaY * k * .45);
+  }, { passive: false });
+  let crownDrag = null;
+  crown.addEventListener('pointerdown', e => { crownDrag = e.clientY; crown.setPointerCapture(e.pointerId); });
+  crown.addEventListener('pointermove', e => { if (crownDrag !== null) { turnCrown((e.clientY - crownDrag) * 2.2); crownDrag = e.clientY; } });
+  const endCrown = () => { crownDrag = null; };
+  crown.addEventListener('pointerup', endCrown);
+  crown.addEventListener('pointercancel', endCrown);
+
+  /* ---------------- keyboard ---------------- */
+  screen.addEventListener('keydown', e => {
+    if (e.key === ' ' || e.key === 'Enter') {
+      e.preventDefault();
+      if (!e.repeat && !S.hold) startHold('key', 0, 0);
+    } else if (e.key === 'ArrowDown' || e.key === 'ArrowRight') { e.preventDefault(); turnCrown(e.shiftKey ? 60 : 15); }
+    else if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') { e.preventDefault(); turnCrown(e.shiftKey ? -60 : -15); }
+  });
+  screen.addEventListener('keyup', e => {
+    if ((e.key === ' ' || e.key === 'Enter') && S.hold && S.hold.id === 'key') { e.preventDefault(); endHold(); }
+  });
+
+  /* ---------------- frame loop ---------------- */
+  const wedge = $('wedge'), clip = $('clipPath'), edge = $('edge'), disc = $('disc');
+  const undoRing = $('undoRing'), app = $('app'), clock = $('clock');
+  const UC = 2 * Math.PI * 46.5;
   let last = performance.now();
 
   function frame(now) {
     const dt = Math.min(.05, (now - last) / 1000); last = now;
 
-    if (!state.dragging && state.now < DAY1) state.now = Math.min(DAY1, state.now + dt * SIM_SPEED);
+    S.now = Math.min(DAY1, S.now + dt * SIM_SPEED);
+
+    // the crown springs back to "now" when you let it rest
+    if (now - S.lastCrown > 1600 && S.travel !== 0) {
+      S.travel += (0 - S.travel) * Math.min(1, dt * (reduce ? 60 : 5));
+      if (Math.abs(S.travel) < .5) S.travel = 0;
+    }
+    S.travel = Math.max(DAY0 - S.now, Math.min(DAY1 - S.now, S.travel));
+    const travelling = Math.abs(S.travel) > 1;
+    const viewT = S.now + S.travel;
+    screen.classList.toggle('travel', travelling);
+
+    // hold → pour
+    const h = S.hold;
+    if (h && !h.armed && now - h.t0 > ARM_MS) { h.armed = true; buzz(6); }
+    if (h && h.armed) {
+      h.pending = Math.min(SIZES[SIZES.length - 1].mg + 12, (now - h.t0 - ARM_MS) / 1000 * POUR_RATE);
+      let st = -1;
+      SIZES.forEach((s, i) => { if (h.pending >= s.mg) st = i; });
+      if (st !== h.stage) { h.stage = st; S.amp = Math.min(1.6, S.amp + .55); buzz(12); }
+      if (!reduce && now - h.lastDrop > 34) {
+        h.lastDrop = now;
+        live.push({ x: 50 + (Math.random() - .5) * 2.2, y: -16, vy: 30 + Math.random() * 20, r: .5 + Math.random() * .8,
+          el: mk('circle', { r: 0, fill: '#e8b27a' }, drops) });
+      }
+    }
+    if (S.undo && now > S.undo.until) S.undo = null;
+    if (S.flash && now > S.flash.until) S.flash = null;
 
     // springy readout
-    const target = levelAt(state.now);
-    if (reduce) { state.shown = target; state.vel = 0; }
+    const base = levelAt(viewT);
+    const target = base + (h && h.armed ? h.pending : 0);
+    if (reduce) { S.shown = target; S.vel = 0; }
     else {
       const k = 70, c = 10;
-      state.vel += (k * (target - state.shown) - c * state.vel) * dt;
-      state.shown += state.vel * dt;
+      S.vel += (k * (target - S.shown) - c * S.vel) * dt;
+      S.shown += S.vel * dt;
     }
-    state.amp *= Math.exp(-dt / .9);
-    state.phase += dt * 10;
+    S.amp *= Math.exp(-dt / .9);
+    S.phase += dt * 10;
 
-    const shown = Math.max(0, state.shown);
+    const shown = Math.max(0, S.shown);
     setDigits(shown);
-    card.classList.toggle('over', target > SCALE);
+    screen.classList.toggle('over', base > SCALE);
     theme(Math.pow(Math.min(1, Math.max(0, shown - 30) / 300), 1.15));
 
     // wedge
     const A = Math.min(360, shown / SCALE * 360);
-    const g = wedgeGeom(A, reduce ? 0 : state.amp, state.phase);
+    const g = wedgeGeom(A, reduce ? 0 : S.amp, S.phase);
     wedge.setAttribute('d', g.d); clip.setAttribute('d', g.d); edge.setAttribute('points', g.edge);
     disc.style.setProperty('--a', A.toFixed(2));
 
-    // fizz drifts with the caffeine
+    // size ticks while pouring
+    const nowLevel = levelAt(S.now);
+    ticks.forEach((t, i) => {
+      const vis = h && h.armed;
+      const a = Math.min(359, (nowLevel + SIZES[i].mg) / SCALE * 360);
+      const [xa, ya] = pt(41.5, a), [xb, yb] = pt(47.5, a);
+      t.setAttribute('x1', xa.toFixed(2)); t.setAttribute('y1', ya.toFixed(2));
+      t.setAttribute('x2', xb.toFixed(2)); t.setAttribute('y2', yb.toFixed(2));
+      t.setAttribute('stroke', vis && h.stage >= i ? '#ffe0bd' : 'rgba(255,255,255,.55)');
+      t.setAttribute('opacity', vis ? 1 : 0);
+    });
+
+    // undo countdown ring
+    const uf = S.undo ? Math.max(0, (S.undo.until - now) / UNDO_MS) : 0;
+    undoRing.setAttribute('stroke-dasharray', `${(uf * UC).toFixed(2)} ${UC + 10}`);
+
+    // fizz drifts faster with more caffeine
     fizz.style.opacity = reduce ? 0 : Math.min(.9, shown / 120);
     const lvl = Math.min(1.5, shown / SCALE);
     particles.forEach(p => {
@@ -447,64 +582,73 @@
       p.el.setAttribute('cx', x.toFixed(2)); p.el.setAttribute('cy', y.toFixed(2));
     });
 
-    // droplets
+    // pour stream
     for (let i = live.length - 1; i >= 0; i--) {
       const d = live[i];
-      if (d.delay > 0) { d.delay -= dt; continue; }
-      d.vy += 260 * dt; d.y += d.vy * dt;
+      d.vy += 280 * dt; d.y += d.vy * dt;
       d.el.setAttribute('cx', d.x.toFixed(2)); d.el.setAttribute('cy', d.y.toFixed(2));
       d.el.setAttribute('r', (d.r * (1 + Math.min(.6, d.vy / 300))).toFixed(2));
-      if (d.y >= 50) {
-        d.el.remove(); live.splice(i, 1);
-        if (d.first) {
-          addDose(d.name, d.mg);
-          rings.push({ t: 0, el: mk('circle', { cx: 50, cy: 50, r: 0, fill: 'none', stroke: '#ffe0bd', 'stroke-width': 1.2 }, drops) });
-        }
-      }
+      if (d.y >= 50) { d.el.remove(); live.splice(i, 1); }
     }
     for (let i = rings.length - 1; i >= 0; i--) {
       const r = rings[i]; r.t += dt / .75;
       const e = 1 - Math.pow(1 - Math.min(1, r.t), 3);
-      r.el.setAttribute('r', (e * R).toFixed(2));
+      r.el.setAttribute('r', ((r.inward ? 1 - e : e) * R).toFixed(2));
       r.el.setAttribute('stroke-opacity', (1 - r.t).toFixed(3));
       if (r.t >= 1) { r.el.remove(); rings.splice(i, 1); }
     }
 
-    // timeline playhead + past/future curve
-    const x = xAt(state.now), y = yAt(target);
-    playline.setAttribute('x1', x); playline.setAttribute('x2', x);
-    playline.setAttribute('y1', y); playline.setAttribute('y2', BASE);
-    playTop.setAttribute('cx', x); playTop.setAttribute('cy', y);
-    playBot.setAttribute('cx', x); playBot.setAttribute('cy', BASE);
-    curveDots.forEach(c => c.setAttribute('fill', +c.dataset.m <= state.now ? 'rgba(255,255,255,.9)' : 'rgba(255,255,255,.3)'));
+    // status bar
+    app.textContent = travelling ? (S.travel > 0 ? 'Ahead' : 'Earlier') : 'Half-Life';
+    clock.textContent = clock12(viewT);
 
-    const s = sleepSafe();
-    if (s !== null) {
-      const tx = xAt(s);
-      sleepX = sleepX === null || reduce ? tx : sleepX + (tx - sleepX) * Math.min(1, dt * 8);
-      moon.setAttribute('transform', `translate(${sleepX.toFixed(2)},${yAt(SAFE)})`);
-    } else sleepX = null;
+    // bottom line — one message at a time, highest priority wins
+    if (h && h.armed) {
+      setLine('pour' + h.stage, h.stage < 0
+        ? '<span class="soft">Pouring…</span>'
+        : `${SIZES[h.stage].name} <span class="soft">${SIZES[h.stage].mg} mg</span>`);
+    } else if (S.flash) {
+      setLine(S.flash.key, S.flash.html);
+    } else if (S.undo) {
+      setLine('undo' + S.undo.id, `<span class="tint">Tap to undo</span>`);
+    } else if (base > SCALE && !travelling) {
+      setLine('over', '<span class="warn">Over 400 mg today</span>');
+    } else if (!S.doses.length) {
+      setLine('empty', '<span class="soft">Nothing yet today</span>');
+    } else {
+      const ct = clearTime();
+      setLine('clear' + (ct === null ? 'x' : Math.round(ct)),
+        ct === null ? '<span class="soft">All clear</span>'
+                    : `<span class="soft">Clear by</span> ${clock12(ct)} <span class="soft">${ampm(ct)}</span>`);
+    }
 
-    const svgH = tl.getBoundingClientRect().height;
-    timeTag.style.left = (x / 300 * 100) + '%';
-    timeTag.style.top = (y / 70 * svgH) + 'px';
-    timeTxt.textContent = fmt(state.now);
-    timeTag.classList.toggle('paused', state.dragging || state.now >= DAY1);
-    timeline.setAttribute('aria-valuenow', Math.round(state.now));
-    timeline.setAttribute('aria-valuetext', fmt(state.now));
+    // mini timeline
+    if (travelling || screen.classList.contains('travel')) {
+      const hx = xAt(viewT), hy = yAt(base);
+      head.setAttribute('x1', hx); head.setAttribute('x2', hx); head.setAttribute('y1', hy); head.setAttribute('y2', BASE);
+      headDot.setAttribute('cx', hx); headDot.setAttribute('cy', hy);
+      const nx = xAt(S.now);
+      nowTick.setAttribute('x1', nx); nowTick.setAttribute('x2', nx); nowTick.setAttribute('y1', TOP); nowTick.setAttribute('y2', BASE);
+      curve.forEach(c => c.setAttribute('fill', +c.dataset.m <= S.now ? 'rgba(255,255,255,.95)' : 'rgba(255,255,255,.35)'));
+    }
 
     requestAnimationFrame(frame);
   }
 
-  /* ---------- opening: replay the morning ---------- */
+  /* ---------------- opening: the morning so far ---------------- */
   rebuild();
-  announce();
   requestAnimationFrame(frame);
-  const seed = [[490, 'Coffee', 95, 300], [780, 'Espresso', 63, 1500]];
-  if (reduce) seed.forEach(([t, n, mg]) => state.doses.push({ id: nextId++, t, mg, name: n })), rebuild();
-  else seed.forEach(([t, n, mg, delay]) => setTimeout(() => {
-    const keep = state.now; state.now = t; addDose(n, mg); state.now = keep; bump(mg);
-  }, delay));
+  const seed = [[490, 'Coffee', 95, 350], [780, 'Espresso', 63, 1500]];
+  seed.forEach(([t, name, mg, delay]) => setTimeout(() => {
+    S.doses.push({ id: nextId++, t, mg, name });
+    S.amp = Math.min(1.6, S.amp + 1);
+    splash(false); bump(`+${mg}`);
+    rebuild();
+  }, reduce ? 0 : delay));
+  setTimeout(() => {
+    const ct = clearTime();
+    say(`${Math.round(levelAt(S.now))} milligrams of caffeine.` + (ct ? ` Clear by ${clock12(ct)} ${ampm(ct)}.` : ''));
+  }, 1800);
 })();
 </script>
 </body>

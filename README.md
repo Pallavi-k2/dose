@@ -1,14 +1,21 @@
 # Half-Life
 
-A caffeine clock for the wrist. Log a coffee and watch it pour into the dial, then slowly drain as your body metabolizes it.
+A caffeine clock for Apple Watch. One glanceable face, one deliberate gesture to log, and the Digital Crown to look ahead.
 
-- **Pour:** tap a drink (Espresso, Coffee, Matcha, Cold brew). Droplets fall from the readout into the dial, splash, and the coffee wedge springs up with a slosh.
-- **Decay:** caffeine halves roughly every 5 hours. The dot-matrix readout and the wedge drain in real time (the demo clock runs fast: about one minute every 1.2 seconds).
-- **Sleep-safe:** the top-right time is when you'll drop below 50 mg. Log a late espresso and watch it slide later; the moon on the timeline moves with it.
-- **Mood:** the whole card shifts from calm blue to wired amber as caffeine rises. Past 400 mg (the daily guideline), the ring pulses.
-- **Scrub:** drag the timeline to move through the day. Click a drink marker on the timeline to remove it.
+## Interaction model
 
-Keyboard: Tab to the drinks or the timeline; arrow keys scrub (Shift for an hour). Respects `prefers-reduced-motion`.
+| Moment | What you do | What happens |
+|---|---|---|
+| **Glance** | Raise your wrist | Milligrams in your system, the coffee wedge in the dial, and *Clear by 6:48 PM* (when you'll drop under 50 mg). The face shifts from calm blue to wired amber as caffeine rises. |
+| **Log** | Press and hold the dial | Coffee pours in while you hold. It snaps through sizes (Espresso 63, Coffee 95, Large 150, Cold brew 200) with a tick and a haptic at each. Let go to log the last size reached. |
+| **Undo** | Tap within 4 seconds | A ring drains around the dial; a tap un-pours the drink. |
+| **Time-travel** | Turn the Digital Crown | Scrub ahead to watch the caffeine decay, or back to see earlier. A mini timeline appears; let go and it springs back to now. |
+
+Why hold-to-pour: a watch gets bumped all day, so a quick tap never logs anything. The gesture itself picks the amount, which means no menus and no small targets.
+
+On the web, hold with the mouse or a finger. The scroll wheel (or dragging the crown) turns the crown. Keyboard: focus the screen, hold Space to pour, and use the arrow keys to turn the crown. Respects `prefers-reduced-motion`.
+
+The demo clock runs fast (about one minute every 1.2 s), and caffeine halves roughly every 5 hours.
 
 A single self-contained `index.html`, no build step.
 
@@ -19,9 +26,9 @@ Turn on GitHub Pages (Settings → Pages → Deploy from branch → `main` / roo
 ```html
 <iframe
   src="https://pallavi-k2.github.io/half-life/?embed"
-  title="Half-Life caffeine clock"
-  style="width:400px;height:720px;border:0;background:transparent"
+  title="Half-Life caffeine clock for Apple Watch"
+  style="width:420px;height:820px;border:0;background:transparent"
   loading="lazy"></iframe>
 ```
 
-`?embed` makes the page background transparent so the card sits on your site's own background.
+`?embed` makes the page background transparent so the watch sits on your site's own background.
