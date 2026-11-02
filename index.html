@@ -117,36 +117,32 @@
   .screen.travel .travel-label { opacity: 1; transform: none; }
 
   /* ---------------- face ---------------- */
-  .unit { position: absolute; top: 19cqw; left: 0; right: 0; text-align: center; font-size: 3.6cqw; font-weight: 600; letter-spacing: .14em; color: rgba(255,255,255,.72); }
-  .digits { position: absolute; top: 24.5cqw; left: 50%; transform: translateX(-50%); width: 38cqw; }
+  /* the number lives inside the ring now */
+  .unit { position: absolute; z-index: 2; top: 66cqw; left: 0; right: 0; text-align: center; font-size: 4cqw; font-weight: 600; color: rgba(255,255,255,.82); pointer-events: none; }
+  .digits { position: absolute; z-index: 2; top: 48.5cqw; left: 50%; transform: translateX(-50%); width: 40cqw; pointer-events: none; }
   .digits svg, .cdigits svg { width: 100%; display: block; overflow: visible; }
   .digits circle, .cdigits circle { fill: #fff; transition: opacity .2s; }
   .screen.over .digits circle { fill: #ffd2bd; }
   .bump { position: absolute; top: 20cqw; left: 71%; font-size: 4.2cqw; font-weight: 700; color: var(--crema); pointer-events: none; white-space: nowrap; }
 
-  .dial-wrap { position: absolute; top: 42cqw; left: 50%; width: 56cqw; aspect-ratio: 1; transform: translateX(-50%) scale(var(--s, 1)); transition: transform 200ms var(--ease); touch-action: none; }
+  .dial-wrap { position: absolute; z-index: 1; top: 17cqw; left: 50%; width: 82cqw; aspect-ratio: 1; transform: translateX(-50%) scale(var(--s, 1)); transition: transform 200ms var(--ease); touch-action: none; }
   .screen.undoable .dial-wrap { cursor: pointer; }
   .dial-wrap.press { --s: .97; transition-duration: 120ms; }
-  .disc {
-    position: absolute; inset: 12%; border-radius: 50%;
-    background:
-      radial-gradient(ellipse 62% 34% at 42% 16%, rgba(255,255,255,.13), rgba(255,255,255,0) 70%),
-      radial-gradient(circle at 50% 38%, color-mix(in srgb, #1a2156, #3a1420 calc(var(--f) * 100%)), color-mix(in srgb, #060818, #0e0406 calc(var(--f) * 100%)) 72%);
-    box-shadow: inset 0 0 0 .45cqw rgba(255,255,255,.14), inset 0 -3cqw 6cqw rgba(0,0,0,.55), 0 2cqw 8cqw rgba(0,0,20,.6);
-  }
+  /* dark core: gives the digits and light rings something deep to glow against */
+  .disc { position: absolute; inset: 9%; border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, #05040e, #0e0406 calc(var(--f) * 100%)) 0, color-mix(in srgb, rgba(5,4,14,.86), rgba(14,4,6,.86) calc(var(--f) * 100%)) 60%, rgba(0,0,0,0) 100%); }
   .fx { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-  .ring { stroke: rgba(255,255,255,.35); transition: stroke .4s; }
-  .screen.over .ring { stroke: var(--warn); animation: pulse 1.1s ease-in-out infinite; }
-  @keyframes pulse { 50% { stroke-opacity: .35; } }
+  .screen.over #arcOver { animation: pulse 1.4s ease-in-out infinite; }
+  @keyframes pulse { 50% { opacity: .55; } }
 
-  .line { position: absolute; isolation: isolate; top: 101cqw; left: 8cqw; right: 8cqw; text-align: center; text-shadow: 0 0 .25cqw rgba(0,0,0,.9), 0 0 .7cqw rgba(0,0,0,.85), 0 0 1.6cqw rgba(0,0,0,.75), 0 0 3cqw rgba(0,0,0,.5); font-size: 5.4cqw; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; transition: opacity .25s, transform .25s; }
+  .line { position: absolute; isolation: isolate; top: 103cqw; left: 8cqw; right: 8cqw; text-align: center; text-shadow: 0 0 .25cqw rgba(0,0,0,.9), 0 0 .7cqw rgba(0,0,0,.85), 0 0 1.6cqw rgba(0,0,0,.75), 0 0 3cqw rgba(0,0,0,.5); font-size: 5.4cqw; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; transition: opacity .25s, transform .25s; }
   .line .soft { color: rgba(255,255,255,.86); font-weight: 600; }
   .line .tint { color: #ffe7cf; }
   .line .warn { color: #ffd0bb; }
   .line.swap { animation: swap 240ms var(--ease); }
   @keyframes swap { from { opacity: 0; transform: translateY(25%); filter: blur(2px); } }
   .screen.travel .line { opacity: 0; transform: translateY(30%); }
-  .mini { position: absolute; top: 94cqw; left: 9cqw; width: 82cqw; height: auto; overflow: visible; opacity: 0; transform: translateY(25%); transition: opacity 250ms var(--ease), transform 300ms var(--ease); pointer-events: none; }
+  .mini { position: absolute; top: 100cqw; left: 9cqw; width: 82cqw; height: auto; overflow: visible; opacity: 0; transform: translateY(25%); transition: opacity 250ms var(--ease), transform 300ms var(--ease); pointer-events: none; }
   .screen.travel .mini { opacity: 1; transform: none; }
 
   .face { position: absolute; inset: 0; transition: transform 260ms var(--ease), filter 220ms var(--ease), opacity 220ms var(--ease); }
@@ -194,10 +190,10 @@
   .ghost:focus-visible, .chip:focus-visible { outline: .7cqw solid var(--tint); outline-offset: .5cqw; }
   .kv { width: 84cqw; margin: 0 auto 2cqw; display: flex; justify-content: space-between; align-items: center; gap: 3cqw;
     padding: 3.2cqw 4.6cqw; border-radius: 6cqw; background: var(--platter); font-size: 4.5cqw; font-weight: 600; }
-  .kv .k small { display: block; font-size: 3.3cqw; font-weight: 600; color: rgba(255,255,255,.45); margin-top: .5cqw; }
+  .kv .k small { display: block; font-size: 3.3cqw; font-weight: 600; color: rgba(255,255,255,.6); margin-top: .5cqw; }
   .kv .v { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
-  .kv .v i { display: block; font-style: normal; font-size: 3.2cqw; font-weight: 600; color: rgba(255,255,255,.45); }
-  .kv .v.none { color: rgba(255,255,255,.45); font-weight: 600; }
+  .kv .v i { display: block; font-style: normal; font-size: 3.2cqw; font-weight: 600; color: rgba(255,255,255,.6); }
+  .kv .v.none { color: rgba(255,255,255,.6); font-weight: 600; }
   .kv.muted { opacity: .55; }
   .ldigits { width: 30cqw; margin: 1cqw auto 0; }
   .ldigits svg { width: 100%; display: block; overflow: visible; }
@@ -209,7 +205,7 @@
     transition: transform 160ms var(--ease), background 150ms ease, color 150ms ease; }
   .chip:active { transform: scale(.95); transition-duration: 100ms; }
   .chip[aria-pressed="true"] { background: var(--tint); color: #1a0e04; }
-  .foot { width: 84cqw; margin: 4cqw auto 0; font-size: 3.3cqw; line-height: 1.4; color: rgba(255,255,255,.45); }
+  .foot { width: 84cqw; margin: 4cqw auto 0; font-size: 3.3cqw; line-height: 1.4; color: rgba(255,255,255,.6); }
   .center { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 4cqw; font-size: 4.6cqw; font-weight: 600; color: rgba(255,255,255,.8); }
   .spin { width: 12cqw; height: 12cqw; border-radius: 50%; border: 1cqw solid rgba(255,255,255,.15); border-top-color: var(--tint); animation: spin .8s linear infinite; }
   @keyframes spin { to { transform: rotate(360deg); } }
@@ -250,7 +246,7 @@
   /* custom page */
   .custom-page .scroller, .profile-page .scroller { padding-top: 21cqw; }
   .field { display: block; width: 84cqw; margin: 0 auto; border: 0; border-radius: 7cqw; background: var(--platter); padding: 3.8cqw 5cqw; font-size: 5.2cqw; font-weight: 600; outline: none; }
-  .field::placeholder { color: rgba(255,255,255,.4); }
+  .field::placeholder { color: rgba(255,255,255,.62); }
   .picker { position: relative; display: flex; align-items: center; justify-content: space-between; width: 84cqw; margin: 5cqw auto 0; }
   .stepper { width: 13cqw; height: 13cqw; border-radius: 50%; border: 0; background: var(--platter); display: grid; place-items: center; cursor: pointer; transition: transform 160ms var(--ease), background 150ms ease; }
   @media (hover: hover) and (pointer: fine) { .stepper:hover { background: var(--platter-hi); } }
@@ -260,10 +256,11 @@
   .pick-mid .lbl { font-size: 3.4cqw; font-weight: 600; letter-spacing: .14em; color: rgba(255,255,255,.55); margin-bottom: 1.6cqw; }
   .cdigits { width: 30cqw; }
   .cdigits circle { fill: var(--crema); }
-  .crown-hint { text-align: center; font-size: 3.4cqw; font-weight: 600; color: rgba(255,255,255,.4); margin-top: 2.4cqw; }
+  .crown-hint { text-align: center; font-size: 3.4cqw; font-weight: 600; color: rgba(255,255,255,.62); margin-top: 2.4cqw; }
   .crown-hint i { display: inline-block; width: 1.4cqw; height: 3.2cqw; border-radius: 1cqw; background: repeating-linear-gradient(0deg, rgba(255,255,255,.5) 0 .4cqw, transparent .4cqw .8cqw); vertical-align: -.5cqw; margin-right: 1.2cqw; }
   .save-row { width: 84cqw; margin: 4cqw auto 0; display: flex; align-items: center; justify-content: space-between; padding: 3.2cqw 4.6cqw 3.2cqw 5cqw; border-radius: 7cqw; background: var(--platter); font-size: 5cqw; font-weight: 600; }
-  .toggle { width: 13cqw; height: 7.8cqw; border-radius: 99px; border: 0; padding: 0; background: #3a3a3e; position: relative; cursor: pointer; transition: background .2s; }
+  .toggle { width: 13cqw; height: 7.8cqw; border-radius: 99px; border: 0; padding: 0; background: #3a3a3e; box-shadow: inset 0 0 0 1px rgba(255,255,255,.42); position: relative; cursor: pointer; transition: background .2s, box-shadow .2s; }
+  .toggle[aria-checked="true"] { box-shadow: none; }
   .toggle::after { content: ""; position: absolute; top: .7cqw; left: .7cqw; width: 6.4cqw; height: 6.4cqw; border-radius: 50%; background: #fff; transition: transform 200ms var(--ease); box-shadow: 0 .4cqw 1cqw rgba(0,0,0,.4); }
   .toggle[aria-checked="true"] { background: #30d158; }
   .toggle[aria-checked="true"]::after { transform: translateX(5.2cqw); }
@@ -304,7 +301,7 @@
     .screen.sheet-open .sheet .sheet-title, .line.swap { animation: fadeOnly 200ms ease backwards !important; }
     .screen.sheet-open .face { transform: none; filter: brightness(.35); }
     .sheet, .screen.sheet-open .sheet { transform: none !important; filter: none !important; }
-    .screen.over .ring { animation: none; }
+    .screen.over #arcOver { animation: none; }
   }
   @keyframes fadeOnly { from { opacity: 0; } }
 </style>
@@ -330,7 +327,7 @@
             </button>
             <div class="travel-label" id="travelLabel">Ahead</div>
 
-            <div class="unit boot-el" style="--d:.42s">MG</div>
+            <div class="unit boot-el" style="--d:.42s">mg caffeine</div>
             <div class="digits boot-el" style="--d:.38s"><svg id="digits" aria-hidden="true"></svg></div>
 
             <div class="dial-wrap boot-el" id="dial" style="--d:.12s">
@@ -342,39 +339,38 @@
                     <feGaussianBlur in="SourceGraphic" stdDeviation="1.35" result="b"/>
                     <feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 19 -7"/>
                   </filter>
-                  <linearGradient id="streamFade" x1="0" y1="-17" x2="0" y2="-7" gradientUnits="userSpaceOnUse">
+                  <linearGradient id="streamFade" x1="0" y1="-14" x2="0" y2="-6" gradientUnits="userSpaceOnUse">
                     <stop offset="0" stop-color="#000"/><stop offset="1" stop-color="#fff"/>
                   </linearGradient>
                   <mask id="streamMask" maskUnits="userSpaceOnUse" x="0" y="-40" width="100" height="140">
                     <rect x="0" y="-40" width="100" height="140" fill="url(#streamFade)"/>
                   </mask>
-                  <linearGradient id="liquidFill" x1="0" y1="-14" x2="0" y2="52" gradientUnits="userSpaceOnUse">
-                    <stop offset="0" stop-color="#f5ddb8"/><stop offset=".55" stop-color="#dfa874"/><stop offset="1" stop-color="#b8744a"/>
+                  <linearGradient id="liquidFill" x1="0" y1="-14" x2="0" y2="10" gradientUnits="userSpaceOnUse">
+                    <stop offset="0" stop-color="#ffd486"/><stop offset=".6" stop-color="#e08a30"/><stop offset="1" stop-color="#a24f1c"/>
                   </linearGradient>
-                  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="1.5"/></filter>
-                  <!-- Ember: a sun-like liquid, glowing core to red rim; stops drift slowly in JS -->
-                  <radialGradient id="coffee" cx="50" cy="50" r="38" gradientUnits="userSpaceOnUse">
-                    <stop class="em" offset="0" stop-color="#f7e4c6"/>
-                    <stop class="em" offset=".42" stop-color="#e8c294"/>
-                    <stop class="em" offset=".78" stop-color="#d29a66"/>
-                    <stop class="em" offset="1" stop-color="#b0704a"/>
-                  </radialGradient>
-                  <filter id="haze" x="-20%" y="-20%" width="140%" height="140%"><feGaussianBlur stdDeviation="2.2"/></filter>
-                  <filter id="edgeSoft" x="-10%" y="-10%" width="120%" height="120%"><feGaussianBlur stdDeviation=".35"/></filter>
-                  <clipPath id="wedgeClip"><path id="clipPath"/></clipPath>
+                  <filter id="soft" x="-25%" y="-25%" width="150%" height="150%"><feGaussianBlur stdDeviation="1.6"/></filter>
+                  <filter id="glow" x="-30%" y="-30%" width="160%" height="160%"><feGaussianBlur stdDeviation="1.3"/></filter>
+                  <!-- Cold brew amber: deep brew at the start of the arc, honey at its tip -->
+                  <linearGradient id="brew" gradientUnits="userSpaceOnUse" x1="50" y1="8" x2="92" y2="50">
+                    <stop offset="0" stop-color="#d27434"/><stop offset=".55" stop-color="#ec9a3e"/><stop offset="1" stop-color="#ffd486"/>
+                  </linearGradient>
                 </defs>
-                <!-- aurora: soft ribbons of light drifting around the dial's rim -->
+                <!-- Galaxy-style light rings: concentric arcs of light breathe and drift inside the ring;
+                     calm = slow and round, near your limit = faster and more restless -->
                 <g id="aurora" filter="url(#soft)" style="mix-blend-mode:screen">
-                  <circle cx="50" cy="50" r="47.6" fill="none" stroke-width="4.4" stroke-linecap="round" style="stroke:var(--g2)"/>
-                  <circle cx="50" cy="50" r="45.4" fill="none" stroke-width="3" stroke-linecap="round" style="stroke:var(--g4)"/>
-                  <circle cx="50" cy="50" r="49.8" fill="none" stroke-width="2.2" stroke-linecap="round" style="stroke:var(--g5)"/>
+                  <circle cx="50" cy="50" r="34" fill="none" stroke-width="2.6" stroke-linecap="round" style="stroke:var(--g2)"/>
+                  <circle cx="50" cy="50" r="28" fill="none" stroke-width="2.2" stroke-linecap="round" style="stroke:var(--g4)"/>
+                  <circle cx="50" cy="50" r="22" fill="none" stroke-width="1.8" stroke-linecap="round" style="stroke:var(--g5)"/>
                 </g>
-                <circle class="ring" cx="50" cy="50" r="46.5" fill="none" stroke-width=".7" stroke-dasharray=".1 1.6" stroke-linecap="round"/>
-                <circle id="undoRing" cx="50" cy="50" r="46.5" fill="none" stroke="#ffe0bd" stroke-width="1.3" stroke-linecap="round" transform="rotate(-90 50 50)" stroke-dasharray="0 400"/>
-                <path id="wedge" fill="url(#coffee)" filter="url(#edgeSoft)"/>
-                <!-- heat-haze bands: soft horizontal ribbons sway through the liquid -->
-                <g clip-path="url(#wedgeClip)"><g id="bands" filter="url(#haze)" style="mix-blend-mode:soft-light"></g></g>
-                <polyline id="edge" fill="none" stroke="rgba(255,236,210,.5)" stroke-width=".7" stroke-linecap="round" stroke-linejoin="round" filter="url(#edgeSoft)"/>
+                <!-- today's intake against your limit -->
+                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(0,0,0,.62)" stroke-width="6.6"/>
+                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="3.6"/>
+                <path id="arcGlow" fill="none" stroke="#f2a54a" stroke-width="7" stroke-linecap="round" opacity=".5" filter="url(#glow)"/>
+                <path id="arc" fill="none" stroke="url(#brew)" stroke-width="3.6" stroke-linecap="round"/>
+                <path id="arcOver" fill="none" stroke="#ff8a5c" stroke-width="3.6" stroke-linecap="round"/>
+                <circle id="arcHeadGlow" r="4.4" fill="#ffd486" opacity="0" filter="url(#glow)"/>
+                <circle id="arcHead" r="1.9" fill="#fff" opacity="0"/>
+                <circle id="undoRing" cx="50" cy="50" r="47.4" fill="none" stroke="#ffe0bd" stroke-width="1.1" stroke-linecap="round" transform="rotate(-90 50 50)" stroke-dasharray="0 400"/>
                 <g mask="url(#streamMask)"><g id="liquid" filter="url(#goo)" fill="url(#liquidFill)"></g></g>
                 <g id="drops"></g>
               </svg>
@@ -728,31 +724,7 @@
   /* ---------------- dial ---------------- */
   const R = 38;
   const pt = (r, a) => { const q = a * Math.PI / 180; return [50 + r * Math.sin(q), 50 - r * Math.cos(q)]; };
-  function wedgeGeom(A, amp, phase) {
-    if (A < .3) return { d: '', edge: '' };
-    if (A > 359.6) return { d: `M50 12 A${R} ${R} 0 1 1 50 88 A${R} ${R} 0 1 1 50 12 Z`, edge: '' };
-    const [x1, y1] = pt(R, A);
-    let d = `M50 50 L50 12 A${R} ${R} 0 ${A > 180 ? 1 : 0} 1 ${x1.toFixed(2)} ${y1.toFixed(2)}`;
-    const q = A * Math.PI / 180, px = Math.cos(q), py = Math.sin(q);
-    const pts = [];
-    for (let i = 0; i <= 16; i++) {
-      const f = i / 16;
-      const off = amp * 2.1 * Math.sin(f * Math.PI) * Math.sin(f * 6 + phase);
-      const [bx, by] = pt(R * (1 - f), A);
-      pts.push(`${(bx + px * off).toFixed(2)},${(by + py * off).toFixed(2)}`);
-    }
-    d += ' L' + pts.slice(1).join(' L') + ' Z';
-    return { d, edge: pts.join(' ') };
-  }
-  const bandsG = $('bands');
-  const bands = [...Array(5)].map((_, i) => ({
-    y: 16 + i * 15, h: 7 + (i % 2) * 3, sp: .28 + (i % 3) * .14, ph: i * 1.9,
-    el: mk('rect', { x: -10, width: 120, rx: 4, fill: i % 2 ? '#fff1dc' : '#8a4a30', opacity: i % 2 ? .2 : .16 }, bandsG),
-  }));
-  const emStops = [...document.querySelectorAll('#coffee .em')];
-  // muted caramel-honey: soft enough to sit inside the dusty blue → mauve → amber field
-  const EM_CALM  = ['#f7e4c6', '#e8c294', '#d29a66', '#b0704a'];
-  const EM_WIRED = ['#f5dcb6', '#e5ae7a', '#c97e50', '#a5583c'];
+
 
   /* ---------------- theme: calm blue → wired amber ---------------- */
   const screen = $('screen');
@@ -798,7 +770,7 @@
   function adaptInk(f) {
     pickInk($('clock'), span(.7, .86, .09), f);
     pickInk($('travelLabel'), span(.12, .3, .09), f);
-    pickInk($('line'), span(.28, .72, .875), f);
+    pickInk($('line'), span(.32, .68, .89), f);
   }
 
   /* ---------------- mini timeline (while time-travelling) ---------------- */
@@ -848,7 +820,7 @@
   const drops = $('drops');
   const live = [], splashes = [], rings = [];
   const liquid = $('liquid');
-  const pool = mk('ellipse', { cx: 50, cy: 50, rx: 0, ry: 0 }, liquid);
+  const pool = mk('ellipse', { cx: 50, cy: 8, rx: 0, ry: 0 }, liquid);
   let poolR = 0, lastHit = 0;
   function splash(inward) {
     // three rings, staggered, like light rippling out of the dial
@@ -887,7 +859,7 @@
     S.doses = S.doses.filter(d => d.id !== u.id);
     S.amp = Math.min(1.6, S.amp + .8);
     splash(true); buzz([8, 40, 8]); Sound.undo();
-    S.flash = { until: performance.now() + 1400, key: 'undone' + u.id, html: `<span class="soft">Undid</span> ${esc(u.name)}` };
+    S.flash = { until: performance.now() + 1400, key: 'undone' + u.id, html: `<span class="soft">Removed</span> ${esc(u.name)}` };
     rebuild();
     say(`${u.name} removed.`);
   }
@@ -1151,7 +1123,15 @@
   });
 
   /* ---------------- frame loop ---------------- */
-  const wedge = $('wedge'), clip = $('clipPath'), edge = $('edge'), disc = $('disc');
+  const disc = $('disc');
+  const arc = $('arc'), arcGlow = $('arcGlow'), arcOver = $('arcOver'), arcHead = $('arcHead'), arcHeadGlow = $('arcHeadGlow'), brew = $('brew');
+  const AR = 42;
+  const arcD = frac => {                    // clockwise from 12 o'clock
+    if (frac <= .0005) return '';
+    if (frac >= .9995) return `M50 ${50 - AR} A${AR} ${AR} 0 1 1 50 ${50 + AR} A${AR} ${AR} 0 1 1 50 ${50 - AR}`;
+    const a = frac * 2 * Math.PI, x = 50 + AR * Math.sin(a), y = 50 - AR * Math.cos(a);
+    return `M50 ${50 - AR} A${AR} ${AR} 0 ${frac > .5 ? 1 : 0} 1 ${x.toFixed(2)} ${y.toFixed(2)}`;
+  };
   const undoRing = $('undoRing'), clock = $('clock'), travelLabel = $('travelLabel');
   const UC = 2 * Math.PI * 46.5;
   let last = performance.now();
@@ -1182,7 +1162,7 @@
       if (f < .86 && now - P.lastDrop > 7) {
         P.lastDrop = now;
         const swell = Math.min(1, f / .1) * (f > .68 ? Math.max(.25, 1 - (f - .68) / .18) : 1);
-        live.push({ x: 50 + Math.sin(now / 110) * .35 + (Math.random() - .5) * .25, y: -15, vy: 48 + Math.random() * 8,
+        live.push({ x: 50 + Math.sin(now / 110) * .35 + (Math.random() - .5) * .25, y: -14, vy: 30 + Math.random() * 6,
           r: (.9 + .85 * swell) * (.94 + Math.random() * .12), el: mk('ellipse', {}, liquid) });
       }
       if (f >= 1) { S.pour = null; pending = 0; commit(P.name, P.mg); }
@@ -1190,7 +1170,7 @@
     if (S.undo && now > S.undo.until) {
       const u = S.undo; S.undo = null;
       // only write to Health once the undo window has passed, so an undone drink never reaches the log
-      if (health.connected && G('caffeineWrite')) S.flash = { until: now + 1600, key: 'saved' + u.id, html: '<span class="soft">Saved to</span> Apple Health' };
+      if (health.connected && G('caffeineWrite')) S.flash = { until: now + 1600, key: 'saved' + u.id, html: '<span class="soft">Saved to</span> Health' };
     }
     if (S.flash && now > S.flash.until) S.flash = null;
     screen.classList.toggle('undoable', !!S.undo);
@@ -1223,9 +1203,19 @@
     const D = Math.max(LIM.daily, 60);
     theme(Math.pow(Math.min(1, Math.max(0, shown - .08 * D) / (.75 * D)), 1.15));
 
-    const A = LIM.daily === 0 ? (S.dShown > 1 ? 360 : 0) : Math.min(360, Math.max(0, S.dShown) / LIM.daily * 360);
-    const g = wedgeGeom(A, reduce ? 0 : S.amp, S.phase);
-    wedge.setAttribute('d', g.d); clip.setAttribute('d', g.d); edge.setAttribute('points', g.edge);
+    // the arc: today's intake against YOUR limit; a second, coral lap shows anything over it
+    const fr = LIM.daily === 0 ? (S.dShown > 1 ? 1.0001 : 0) : Math.max(0, S.dShown) / LIM.daily;
+    const f1 = Math.min(1, fr), f2 = Math.max(0, Math.min(1, fr - 1));
+    const d1 = arcD(f1); arc.setAttribute('d', d1); arcGlow.setAttribute('d', d1);
+    arcOver.setAttribute('d', arcD(f2));
+    const hf = f2 > 0 ? f2 : f1, ha = hf * 2 * Math.PI, hx2 = 50 + AR * Math.sin(ha), hy2 = 50 - AR * Math.cos(ha);
+    arcHead.setAttribute('cx', hx2.toFixed(2)); arcHead.setAttribute('cy', hy2.toFixed(2));
+    arcHeadGlow.setAttribute('cx', hx2.toFixed(2)); arcHeadGlow.setAttribute('cy', hy2.toFixed(2));
+    const headOn = f1 > .01 ? 1 : 0;
+    arcHead.setAttribute('opacity', headOn); arcHeadGlow.setAttribute('opacity', headOn * (.55 + .25 * Math.sin(now / 600)));
+    // gradient runs from the start of the arc toward its head, so the tip is always the brightest
+    const gx = 50 + AR * Math.sin(Math.min(f1, .5) * 2 * Math.PI), gy = 50 - AR * Math.cos(Math.min(f1, .5) * 2 * Math.PI);
+    brew.setAttribute('x2', (f1 > .5 ? hx2 : gx).toFixed(2)); brew.setAttribute('y2', (f1 > .5 ? hy2 : gy).toFixed(2));
 
     // aurora: three ribbons drift around the rim at different speeds; they flow faster when you're wired
     if (!reduce || !S.auroraSet) {
@@ -1235,6 +1225,8 @@
       aurora.forEach((a, i) => {
         a.rot += dt * a.spd * speed;
         const breathe = 1 + .18 * Math.sin(now / 1000 * a.br + i * 2);
+        const restless = Math.min(1, lvlOf(shown));
+        a.el.setAttribute('r', (a.r0 + (reduce ? 0 : (.6 + 1.6 * restless) * Math.sin(now / 1000 * (a.br * (1 + 2 * restless)) + i * 1.7))).toFixed(2));
         const len = a.C * a.len * breathe * grow;
         a.el.setAttribute('stroke-dasharray', `${len.toFixed(2)} ${(a.C - len).toFixed(2)}`);
         a.el.setAttribute('transform', `rotate(${(a.rot + (1 - grow) * -140).toFixed(2)} 50 50)`);
@@ -1246,19 +1238,6 @@
     const uf = S.undo ? Math.max(0, (S.undo.until - now) / UNDO_MS) : 0;
     undoRing.setAttribute('stroke-dasharray', `${(uf * UC).toFixed(2)} ${UC + 10}`);
 
-    // liquid: bands sway sideways like heat haze; the colours breathe between gold and red
-    const ts = now / 1000;
-    bands.forEach(b => {
-      const x = reduce ? 0 : Math.sin(ts * b.sp + b.ph) * 4.5;
-      const y = b.y + (reduce ? 0 : Math.sin(ts * b.sp * .6 + b.ph * 2) * 1.6);
-      b.el.setAttribute('y', y.toFixed(2)); b.el.setAttribute('height', b.h);
-      b.el.setAttribute('transform', `translate(${x.toFixed(2)} 0)`);
-    });
-    if ((S.frameN = (S.frameN || 0) + 1) % 3 === 0) {
-      const fNow = Math.min(1, Math.max(0, shown - 30) / 300);
-      const pct = Math.max(0, Math.min(100, fNow * 100 + (reduce ? 0 : Math.sin(ts / 3.2) * 14)));
-      emStops.forEach((st, i) => { st.style.stopColor = `color-mix(in srgb, ${EM_CALM[i]}, ${EM_WIRED[i]} ${pct.toFixed(1)}%)`; });
-    }
     for (let i = live.length - 1; i >= 0; i--) {
       const d = live[i];
       d.vy += 260 * dt; d.y += d.vy * dt;
@@ -1267,10 +1246,10 @@
       d.el.setAttribute('cx', d.x.toFixed(2)); d.el.setAttribute('cy', d.y.toFixed(2));
       d.el.setAttribute('rx', (d.r * (1 - st * .22)).toFixed(2));
       d.el.setAttribute('ry', (d.r * (1 + st * 1.6)).toFixed(2));
-      if (d.y >= 49) {
+      if (d.y >= 50 - AR) {
         d.el.remove(); live.splice(i, 1); lastHit = now;
         if (!reduce && Math.random() < .22) {               // a little splash crown
-          const s = { x: 50 + (Math.random() - .5) * 1.5, y: 48.5, vx: (Math.random() - .5) * 46, vy: -(28 + Math.random() * 34), r: .5 + Math.random() * .45, el: mk('circle', {}, liquid) };
+          const s = { x: 50 + (Math.random() - .5) * 1.5, y: 50 - AR - .5, vx: (Math.random() - .5) * 46, vy: -(28 + Math.random() * 34), r: .5 + Math.random() * .45, el: mk('circle', {}, liquid) };
           splashes.push(s);
         }
       }
@@ -1279,7 +1258,7 @@
       const s = splashes[i];
       s.vy += 260 * dt; s.x += s.vx * dt; s.y += s.vy * dt;
       s.el.setAttribute('cx', s.x.toFixed(2)); s.el.setAttribute('cy', s.y.toFixed(2)); s.el.setAttribute('r', s.r.toFixed(2));
-      if (s.vy > 0 && s.y > 50.5) { s.el.remove(); splashes.splice(i, 1); }
+      if (s.vy > 0 && s.y > 50 - AR + 1.5) { s.el.remove(); splashes.splice(i, 1); }
     }
     // the impact pool swells while liquid is landing, then settles away
     const poolTarget = now - lastHit < 70 ? 2.6 : 0;
@@ -1297,29 +1276,20 @@
     clock.textContent = clock12(sheetOpen ? S.now : viewT);
     travelLabel.textContent = S.travel > 0 ? 'Ahead' : 'Earlier';
 
-    // bottom line — one message at a time
+    // bottom line — one short message at a time; no deadlines
+    const today = Math.round(intakeAt(S.now));
     if (P) {
-      setLine('pour' + P.t0, `${esc(P.name)} <span class="soft">${P.mg} mg</span>`);
+      setLine('pour' + P.t0, `<span class="tint">+${P.mg}</span> ${esc(P.name)}`);
     } else if (S.flash) {
       setLine(S.flash.key, S.flash.html);
     } else if (S.undo) {
-      setLine('undo' + S.undo.id, `<span class="tint">Tap dial to undo</span>`);
+      setLine('undo' + S.undo.id, `<span class="tint">Tap to undo</span>`);
     } else if (isOver) {
-      setLine('over' + LIM.daily, LIM.daily === 0 ? '<span class="warn">Not advised under 12</span>' : `<span class="warn">Over your ${LIM.daily} mg limit</span>`);
+      setLine('over' + LIM.daily, LIM.daily === 0 ? '<span class="warn">Not advised</span>' : '<span class="warn">Over your limit</span>');
     } else if (!S.doses.length) {
-      setLine('empty', '<span class="soft">Tap</span> <span class="tint">+</span> <span class="soft">to log a drink</span>');
+      setLine('empty', '<span class="soft">Tap</span> <span class="tint">+</span> <span class="soft">to add</span>');
     } else {
-      const ct = clearTime(), p = prof();
-      const bed = p && G('sleep') ? p.bed : null;
-      if (ct !== null && bed !== null && ct > bed && S.now < bed) {
-        // with a sleep schedule from Health, say what will still be in you at bedtime
-        const left = Math.round(levelAt(bed) / 5) * 5;
-        setLine('bed' + left, `<span class="tint">${left} mg</span> <span class="soft">left at bedtime</span>`);
-      } else {
-        setLine('clear' + (ct === null ? 'x' : Math.round(ct)),
-          ct === null ? '<span class="soft">All clear</span>'
-                      : `<span class="soft">Clear by</span> ${clock12(ct)} <span class="soft">${ampm(ct)}</span>`);
-      }
+      setLine('today' + today + '/' + LIM.daily, `${today} <span class="soft">/ ${LIM.daily} mg</span>`);
     }
 
     if (travelling) {
@@ -1424,7 +1394,7 @@
   const lvlOf = mg => Math.min(1.5, mg / Math.max(LIM.daily, 60));
   const aurora = [...document.querySelectorAll('#aurora circle')].map((el, i) => {
     const r = +el.getAttribute('r');
-    return { el, C: 2 * Math.PI * r, rot: [-90, 60, 200][i], spd: [22, -15, 31][i], len: [.24, .17, .11][i], br: [.7, 1.1, .9][i], op: [.85, .7, .75][i] };
+    return { el, r0: r, C: 2 * Math.PI * r, rot: [-90, 60, 200][i], spd: [22, -15, 31][i], len: [.36, .28, .22][i], br: [.7, 1.1, .9][i], op: [.9, .75, .8][i] };
   });
   setTimeout(() => screen.classList.remove('boot'), 2200);
 
@@ -1446,7 +1416,7 @@
   if (!health.onboarded) setTimeout(() => { if (!sheetOpen) openSheet('onboard'); }, reduce ? 400 : 2600);
   setTimeout(() => {
     const ct = clearTime();
-    say(`${Math.round(levelAt(S.now))} milligrams of caffeine.` + (ct ? ` Clear by ${clock12(ct)} ${ampm(ct)}.` : ''));
+    say(`${Math.round(levelAt(S.now))} milligrams of caffeine in you. ${Math.round(intakeAt(S.now))} of ${LIM.daily} milligrams today.`);
   }, 1800);
 })();
 </script>

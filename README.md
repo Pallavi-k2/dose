@@ -6,7 +6,7 @@ A caffeine clock for Apple Watch. One glanceable face, a two-tap way to log any 
 
 | Moment | What you do | What happens |
 |---|---|---|
-| **Glance** | Raise your wrist | Milligrams in your system, a dial that fills toward *your* daily limit, and *Clear by 6:48 PM* (when you'll drop under 50 mg). The face drifts from calm blue through dusty mauve to muted amber as caffeine rises. |
+| **Glance** | Raise your wrist | The caffeine in you now (dot-matrix *mg caffeine*) sits inside a glowing cold-brew arc that fills with what you've drunk today toward *your* limit, with *158 / 400 mg* underneath. The face drifts from calm blue through dusty mauve to amber as caffeine rises. |
 | **Log** | Tap **+** (top-left, the watchOS toolbar spot) | A drink list slides up. Each row shows its caffeine (e.g. *63 mg · 1 shot*) and a tiny dial previewing how much of the day it uses. Pick one and it pours into the face. |
 | **Your own drinks** | **Add more** at the end of the list | Name it (optional), set the mg with − / + or the crown, and keep *Save to list* on to have it appear under **Yours** next time. Swipe a saved drink left to delete it. |
 | **Undo** | Tap the dial within 4 seconds | A ring drains around the dial; a tap pours the drink back out. |
@@ -35,8 +35,7 @@ Height is read but deliberately not used, because none of this guidance depends 
 
 - **First launch:** a short *Connect Apple Health* screen explains why the data is needed, then a permission sheet modelled on the system one. Every type starts **off**, with *Turn On All* and individual switches. It then shows *Your daily limit*.
 - **Partial consent is respected.** Anything not shared falls back to the standard assumption, the profile shows it as *Not shared*, and the limit explains what to share for a more personal one (*Share Date of Birth for a more personal limit*). Without Sleep there's no bedtime line, and without write access nothing is saved to Health.
-- **On the face:** the dial now shows **what you've drunk today against your limit**, so it fills up and doesn't drain. The number still shows what's in your body right now. The face's colour shifts relative to *your* limit, and the bottom line warns *Over your 200 mg limit*.
-- **Sleep:** with a sleep schedule from Health, the bottom line says what will still be in you at bedtime (*90 mg left at bedtime*) when you won't be clear in time.
+- **On the face:** the arc shows **what you've drunk today against your limit**, so it fills up and doesn't drain. Go past the limit and a second, coral lap starts over the first, like an Activity ring. The number in the middle shows what's in your body right now. The bottom line reads *158 / 400 mg*, or *Over your limit*.
 - **In the + list:** the first row shows *158 of 400 mg today* and opens your limit. Each drink is flagged if it's above your single-dose limit or would put you over today.
 - **Saved to Health:** drinks are written to Health's Caffeine log after the 4-second undo window, so an undone drink never reaches your log.
 - **Profile:** shows the values read from Health, with demo profiles (Adult, Pregnant, Teen, Lighter adult) so you can watch the limit change. *Health setup* under the watch replays the onboarding.
@@ -49,7 +48,7 @@ This web prototype **simulates** Apple Health, since browsers can't read HealthK
 
 Motion principles, borrowed from premium watch-face reels and audited against Emil Kowalski's animation skills and Apple's fluid-interface guidance:
 
-- **Light lives at the edges.** Three blurred ribbons of light drift around the dial's rim at different speeds and blend additively. They flow faster the more caffeine you've had, and surge while a drink pours.
+- **Galaxy-style light rings.** Inside the arc, three concentric rings of light breathe and drift at different speeds and blend additively. When you're calm they're slow and round. Near your limit they turn faster and more restless, and they surge while a drink pours.
 - **Dip & bloom, never slide.** Opening the drink list sinks and blurs the face away while the list comes into focus on an iOS sheet curve (380 ms in; closing snaps back in about 220 ms). Rows bloom in 30 ms apart.
 - **Staged wake-up.** On load, the glow blooms first, then the dial, the number, the text, and finally the controls.
 - **Responsive, not floaty.** UI motion stays under 300 ms on a strong ease-out (`cubic-bezier(.23,1,.32,1)`). Presses give instant, subtle feedback (scale .94–.97 in 100 ms) with no overshoot, and the number's spring is critically damped.
@@ -57,8 +56,8 @@ Motion principles, borrowed from premium watch-face reels and audited against Em
 - **Reduced motion is gentler, not off.** With `prefers-reduced-motion`, movement and scaling are dropped but opacity fades remain.
 - **Cheap to render.** The colour variable that drives the calm→wired shift is scoped to the three elements that read it, so the rest of the face is never restyled; during a pour the page holds 60 fps.
 - **Ripples.** Logging a drink sends three staggered rings of light outward; undo pulls them back in.
-- **Caramel liquid.** The wedge is a soft honey-caramel, lighter at the core and deeper at the rim. Soft heat-haze bands sway through it, and its colours breathe slowly. When it moves it sloshes, and it springs into place with no bounce.
-- **Liquid pour.** The stream is many drops melted together by an SVG goo filter. Each drop stretches as gravity speeds it up, and the stream starts thin, swells, and tapers so its tail breaks off. A small splash and pool form where it lands.
+- **Cold-brew arc.** The arc runs from deep brew at its start to honey at its glowing tip, and glides to its new length with no bounce.
+- **Liquid pour.** The stream is many drops melted together by an SVG goo filter. Each drop stretches as gravity speeds it up, and the stream starts thin, swells, and tapers so its tail breaks off. It lands on the top of the ring, where the arc begins, with a small splash.
 
 Sound is kept quiet and in the background (all synthesized with Web Audio, no audio files):
 
@@ -70,7 +69,11 @@ Sound is kept quiet and in the background (all synthesized with Web Audio, no au
 
 There's a **Sound on/off** toggle under the watch, and the setting is remembered. Browsers only allow sound after your first click or tap.
 
-Contrast: nothing is layered over the gradient. Instead, the clock, the *Ahead/Earlier* label and the bottom line each check the colour actually behind them as the face shifts, and switch between white and deep ink to whichever reads better. A tight shadow hugs each letter. Worst case is about 4.5:1 before counting that shadow. The + sits on its own small dark button.
+## Words on the face
+
+As little text as possible, and it always names caffeine: *mg caffeine* under the number, *158 / 400 mg* for today, *+200 Cold brew* while pouring, *Tap to undo*, *Removed Cold brew*, *Saved to Health*, *Over your limit*, and *Tap + to add* when the day is empty. There are no deadlines on the face.
+
+Contrast: nothing is layered over the gradient. Instead, the clock, the *Ahead/Earlier* label and the bottom line each check the colour actually behind them as the face shifts, and switch between white and deep ink to whichever reads better. A tight shadow hugs each letter. Worst case is 4.5:1 or better before counting that shadow. The rest of the UI was checked pair by pair: secondary greys are at least 6:1, switches that are off get a visible outline, and the arc keeps at least 3:1 against its dark track. The + sits on its own small dark button.
 
 A single self-contained `index.html`, no build step.
 
