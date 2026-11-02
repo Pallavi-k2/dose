@@ -1,6 +1,6 @@
 # Half-Life
 
-A caffeine clock for Apple Watch. One glanceable face, one deliberate gesture to log, and the Digital Crown to look ahead.
+A caffeine clock for Apple Watch. One glanceable face, a two-tap way to log any drink, and the Digital Crown to look ahead.
 
 ## Interaction model
 
