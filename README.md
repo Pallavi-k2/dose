@@ -20,6 +20,28 @@ Built-in amounts are typical values (espresso 63 mg, 8 oz coffee 95 mg, 16 oz en
 
 On the web: click or tap, and scroll or drag the crown. Keyboard: Tab to the buttons; arrow keys turn the crown or move through the list; Esc goes back. Respects `prefers-reduced-motion`. The demo clock runs fast (about one minute every 1.2 s), and caffeine halves roughly every 5 hours.
 
+## Motion & sound
+
+Motion principles, borrowed from premium watch-face reels:
+
+- **Light lives at the edges.** Three blurred ribbons of light drift around the dial's rim at different speeds and blend additively. They flow faster the more caffeine you've had, and surge while a drink pours.
+- **Dip & bloom, never slide.** Opening the drink list sinks and blurs the face away while the list comes into focus. Rows bloom in one after another, about 38 ms apart.
+- **Staged wake-up.** On load, the glow blooms first, then the dial, the number, the text, and finally the controls.
+- **Long, smooth deceleration.** Everything eases with expo-out (`cubic-bezier(.16,1,.3,1)`), and the number's spring is tuned for glide with only a slight settle.
+- **Ripples.** Logging a drink sends three staggered rings of light outward; undo pulls them back in.
+
+Sound (all synthesized with Web Audio, no audio files):
+
+- Crown detents and list rows **tick**.
+- The list opens with an airy rise and closes with a fall.
+- A pour is a stream of **bubbles whose pitch rises as the cup fills**, then a soft plop and a warm three-note chime.
+- Undo plays the chime in reverse. Crossing 400 mg gives a low double pulse.
+- The stepper's pitch follows the number.
+
+There's a **Sound on/off** toggle under the watch, and the setting is remembered. Browsers only allow sound after your first click or tap.
+
+Contrast: every piece of text stays at 9:1 or better against the glow in every state (WCAG AAA is 7:1).
+
 A single self-contained `index.html`, no build step.
 
 ## Embedding in a portfolio
