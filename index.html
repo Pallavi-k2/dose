@@ -168,11 +168,52 @@
   .screen.sheet-open .sheet .section,
   .screen.sheet-open .sheet .cell { animation: rowIn 320ms var(--ease) backwards; animation-delay: calc(40ms + var(--i, 0) * 30ms); }
   @keyframes rowIn { from { opacity: 0; transform: translateY(3cqw) scale(.97); filter: blur(2px); } }
-  .page { position: absolute; inset: 0; transition: transform 340ms var(--ease-drawer), opacity 220ms var(--ease); }
-  .page.list-page { }
-  .sheet.custom .page.list-page { transform: translateX(-28%); opacity: 0; pointer-events: none; }
-  .page.custom-page { transform: translateX(100%); }
-  .sheet.custom .page.custom-page { transform: none; }
+  /* pages push left like watchOS navigation: the active one in place, earlier ones tucked left, later ones waiting right */
+  .page { position: absolute; inset: 0; transform: translateX(100%); opacity: 0; pointer-events: none; visibility: hidden;
+    transition: transform 340ms var(--ease-drawer), opacity 220ms var(--ease), visibility 0s linear 340ms; }
+  .page.behind { transform: translateX(-28%); }
+  .page.active { transform: none; opacity: 1; pointer-events: inherit; visibility: inherit;   /* the sheet decides when anything is visible/tappable */
+    transition: transform 340ms var(--ease-drawer), opacity 220ms var(--ease), visibility 0s; }
+
+  /* ---- Apple Health ---- */
+  .hk { flex: none; width: 10cqw; height: 10cqw; border-radius: 2.8cqw; display: grid; place-items: center;
+    background: linear-gradient(160deg, #ff7a98, #ff2d55); box-shadow: inset 0 .3cqw .4cqw rgba(255,255,255,.35); }
+  .hk svg { width: 58%; height: 58%; }
+  .hk.big { width: 17cqw; height: 17cqw; border-radius: 4.6cqw; }
+  .cell.limit .name { font-size: 5cqw; }
+  .cell.limit .mg { color: #ff8fa6; }
+  .cell .flag { display: block; font-size: 3.5cqw; font-weight: 700; color: #ffb39b; margin-top: .6cqw; white-space: nowrap; }
+  .onb { padding: 16cqw 11cqw 14cqw; }
+  .onb h3 { font-size: 7.6cqw; font-weight: 800; letter-spacing: -.02em; margin: 4.5cqw 0 2.4cqw; }
+  .onb p, .perm-sub { font-size: 4.3cqw; line-height: 1.38; color: rgba(255,255,255,.72); }
+  .perm-sub { width: 84cqw; margin: -1cqw auto 1cqw; }
+  .onb .primary, .onb .ghost { width: 100%; }
+  .ghost { display: block; width: 84cqw; margin: 2.6cqw auto 0; border: 0; border-radius: 99px; padding: 3.6cqw 0; background: var(--platter);
+    color: #fff; font-size: 5cqw; font-weight: 700; cursor: pointer; transition: transform 160ms var(--ease), background 150ms ease; }
+  .ghost:active { transform: scale(.97); transition-duration: 100ms; }
+  .ghost:focus-visible, .chip:focus-visible { outline: .7cqw solid var(--tint); outline-offset: .5cqw; }
+  .kv { width: 84cqw; margin: 0 auto 2cqw; display: flex; justify-content: space-between; align-items: center; gap: 3cqw;
+    padding: 3.2cqw 4.6cqw; border-radius: 6cqw; background: var(--platter); font-size: 4.5cqw; font-weight: 600; }
+  .kv .k small { display: block; font-size: 3.3cqw; font-weight: 600; color: rgba(255,255,255,.45); margin-top: .5cqw; }
+  .kv .v { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .kv .v i { display: block; font-style: normal; font-size: 3cqw; font-weight: 700; color: #ff8fa6; letter-spacing: .04em; }
+  .kv.muted { opacity: .55; }
+  .ldigits { width: 30cqw; margin: 1cqw auto 0; }
+  .ldigits svg { width: 100%; display: block; overflow: visible; }
+  .ldigits circle { fill: #fff; transition: opacity .2s; }
+  .lunit { text-align: center; font-size: 3.4cqw; font-weight: 600; letter-spacing: .14em; color: rgba(255,255,255,.55); margin-top: 2cqw; }
+  .basis { width: 80cqw; margin: 2.6cqw auto 1cqw; text-align: center; font-size: 4cqw; line-height: 1.35; color: rgba(255,255,255,.75); }
+  .chips { display: flex; flex-wrap: wrap; gap: 2cqw; width: 84cqw; margin: 0 auto; }
+  .chip { border: 0; border-radius: 99px; padding: 2.6cqw 3.8cqw; background: var(--platter); color: #fff; font-size: 4cqw; font-weight: 600; cursor: pointer;
+    transition: transform 160ms var(--ease), background 150ms ease, color 150ms ease; }
+  .chip:active { transform: scale(.95); transition-duration: 100ms; }
+  .chip[aria-pressed="true"] { background: #ff2d55; }
+  .foot { width: 84cqw; margin: 4cqw auto 0; font-size: 3.3cqw; line-height: 1.4; color: rgba(255,255,255,.45); }
+  .center { position: absolute; inset: 0; display: grid; place-items: center; align-content: center; gap: 4cqw; font-size: 4.6cqw; font-weight: 600; color: rgba(255,255,255,.8); }
+  .spin { width: 12cqw; height: 12cqw; border-radius: 50%; border: 1cqw solid rgba(255,255,255,.15); border-top-color: #ff2d55; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  .perm-row { width: 84cqw; margin: 0 auto 1.8cqw; display: flex; justify-content: space-between; align-items: center;
+    padding: 2.8cqw 3.6cqw 2.8cqw 4.6cqw; border-radius: 6cqw; background: var(--platter); font-size: 4.4cqw; font-weight: 600; }
   .head-fade { position: absolute; top: 0; left: 0; right: 0; height: 22cqw; z-index: 3; pointer-events: none; background: linear-gradient(#000 62%, transparent); }
 
   .scroller { position: absolute; inset: 0; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; padding: 21cqw 0 18cqw; }
@@ -203,7 +244,7 @@
   .cell.more .plus svg { width: 45%; height: 45%; }
 
   /* custom page */
-  .custom-page .scroller { padding-top: 21cqw; }
+  .custom-page .scroller, .profile-page .scroller { padding-top: 21cqw; }
   .field { display: block; width: 84cqw; margin: 0 auto; border: 0; border-radius: 7cqw; background: var(--platter); padding: 3.8cqw 5cqw; font-size: 5.2cqw; font-weight: 600; outline: none; }
   .field::placeholder { color: rgba(255,255,255,.4); }
   .picker { position: relative; display: flex; align-items: center; justify-content: space-between; width: 84cqw; margin: 5cqw auto 0; }
@@ -334,13 +375,14 @@
           <!-- ============ add sheet ============ -->
           <div class="sheet" id="sheet" aria-hidden="true">
             <!-- list -->
-            <div class="page list-page" id="listPage">
+            <div class="page list-page active" id="listPage">
               <div class="head-fade"></div>
               <button class="tb-btn" id="closeBtn" style="z-index:4" aria-label="Close">
                 <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="#fff" stroke-width="2.4" stroke-linecap="round"/></svg>
               </button>
               <div class="scroller" id="listScroll">
                 <div class="sheet-title">Add drink</div>
+                <div id="limitRow"></div>
                 <div id="yours"></div>
                 <div class="section">Drinks</div>
                 <div id="presets"></div>
@@ -374,6 +416,63 @@
                 <button class="primary" id="customAdd">Add 120 mg</button>
               </div>
             </div>
+          <!-- ============ Apple Health ============ -->
+          <div class="page profile-page" id="profilePage" aria-hidden="true">
+            <div class="head-fade"></div>
+            <button class="tb-btn" id="profBack" style="z-index:4" aria-label="Back to drinks">
+              <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M12.5 4L6.5 10l6 6" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div class="scroller" id="profScroll">
+              <div class="sheet-title">Your limit</div>
+              <div class="ldigits"><svg id="ldigits" aria-hidden="true"></svg></div>
+              <div class="lunit">MG PER DAY</div>
+              <div class="basis" id="basis"></div>
+              <button class="primary" id="profConnect">Connect Apple Health</button>
+              <div id="kvWrap">
+                <div class="section">From Apple Health</div>
+                <div id="kv"></div>
+                <div class="section">Try a profile · demo</div>
+                <div class="chips" id="personas"></div>
+              </div>
+              <div class="foot">Limits follow EFSA, FDA and AACAP guidance for healthy people. General information, not medical advice. If you have a heart condition, take medication or are unsure, ask your doctor.</div>
+            </div>
+          </div>
+          <div class="page" id="onboardPage" aria-hidden="true">
+            <div class="scroller onb">
+              <div class="hk big"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 17s-6.5-3.9-6.5-8.6A3.6 3.6 0 0 1 10 6.3a3.6 3.6 0 0 1 6.5 2.1C16.5 13.1 10 17 10 17z" fill="#fff"/></svg></div>
+              <h3>Your safe limit</h3>
+              <p>Half-Life reads your age, weight and pregnancy status from Apple Health to set a daily caffeine limit that fits you, and saves your drinks to the Caffeine log.</p>
+              <button class="primary" id="onbConnect">Connect Health</button>
+              <button class="ghost" id="onbSkip">Not now</button>
+            </div>
+          </div>
+          <div class="page" id="permPage" aria-hidden="true">
+            <div class="head-fade"></div>
+            <div class="scroller" style="padding-top:15cqw">
+              <div class="sheet-title">Health Access</div>
+              <p class="perm-sub">"Half-Life" would like to access and update your Health data.</p>
+              <div class="section">Read</div>
+              <div id="permRead"></div>
+              <div class="section">Write</div>
+              <div id="permWrite"></div>
+              <button class="primary" id="permAllow">Allow</button>
+              <button class="ghost" id="permDeny">Don't Allow</button>
+            </div>
+          </div>
+          <div class="page" id="syncPage" aria-hidden="true">
+            <div class="center"><div class="spin"></div><div>Reading Health…</div></div>
+          </div>
+          <div class="page" id="resultPage" aria-hidden="true">
+            <div class="scroller onb" style="padding-top:14cqw">
+              <div class="hk"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 17s-6.5-3.9-6.5-8.6A3.6 3.6 0 0 1 10 6.3a3.6 3.6 0 0 1 6.5 2.1C16.5 13.1 10 17 10 17z" fill="#fff"/></svg></div>
+              <h3 style="margin-bottom:1cqw">Your daily limit</h3>
+              <div class="ldigits" style="margin:3cqw 0 0;width:34cqw"><svg id="rdigits" aria-hidden="true"></svg></div>
+              <div class="lunit" style="text-align:left">MG PER DAY</div>
+              <p id="resultBasis" style="margin-top:2.6cqw"></p>
+              <button class="primary" id="resDone">Done</button>
+            </div>
+          </div>
+
           </div>
 
           <div class="glare"></div>
@@ -386,6 +485,7 @@
       <span aria-hidden="true"><b>Tap +</b> to log a drink</span>
       <span aria-hidden="true"><b>Scroll</b> or drag the crown to time-travel</span>
       <span aria-hidden="true"><b>Tap the dial</b> to undo</span>
+      <button class="sound-btn" id="healthBtn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 17s-6.5-3.9-6.5-8.6A3.6 3.6 0 0 1 10 6.3a3.6 3.6 0 0 1 6.5 2.1C16.5 13.1 10 17 10 17z" fill="#ff5f86"/></svg><span>Health setup</span></button>
       <button class="sound-btn" id="soundBtn" aria-pressed="true">
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7.5h3l4-3.5v12l-4-3.5H3z" fill="currentColor"/>
           <path class="wave" d="M13 7a4 4 0 0 1 0 6M15.5 4.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -481,7 +581,38 @@
   const DAY0 = 360, DAY1 = 1500;      // 6:00 → 1:00 next day (minutes)
   const HALF = 300;                   // caffeine half-life ≈ 5 h
   const SAFE = 50;                    // "clear" threshold, mg
-  const SCALE = 400;                  // full dial = 400 mg daily guideline
+  const SCALE = 400;                  // fallback daily guideline (healthy adults)
+
+  /* ---------------- personal limit (Apple Health) ----------------
+     Guidance used (healthy people, all sources of caffeine):
+       • Adults: up to 400 mg/day; single dose up to 200 mg ≈ 3 mg/kg            (EFSA 2015, FDA)
+       • Pregnant or breastfeeding: up to 200 mg/day                             (EFSA)
+       • 12–17 years: 3 mg/kg/day (EFSA), capped at 100 mg/day                   (AACAP)
+       • Under 12: caffeine not recommended                                      (AAP)
+     Height is read but deliberately not used: none of this guidance depends on it.
+     In this web prototype Health is simulated; a watchOS build would read HealthKit
+     (dateOfBirth, bodyMass, height, pregnancy/lactation, sleep) and read/write dietaryCaffeine. */
+  const PERSONAS = {
+    adult:    { label: 'Adult',         age: 29, kg: 62, cm: 168, pregnant: false, bed: 22 * 60 + 30 },
+    pregnant: { label: 'Pregnant',      age: 31, kg: 68, cm: 165, pregnant: true,  bed: 22 * 60 },
+    teen:     { label: 'Teen',          age: 16, kg: 52, cm: 163, pregnant: false, bed: 22 * 60 + 30 },
+    light:    { label: 'Lighter adult', age: 24, kg: 48, cm: 155, pregnant: false, bed: 23 * 60 },
+  };
+  const HSTORE = 'halflife.health.v1';
+  let health = { connected: false, persona: 'adult', onboarded: false };
+  try { Object.assign(health, JSON.parse(localStorage.getItem(HSTORE) || '{}')); } catch (e) {}
+  const saveHealth = () => { try { localStorage.setItem(HSTORE, JSON.stringify(health)); } catch (e) {} };
+  const prof = () => health.connected ? PERSONAS[health.persona] || PERSONAS.adult : null;
+  function computeLimits(p) {
+    if (!p) return { daily: 400, single: 200, basis: 'Standard guidance for healthy adults. Connect Health to personalise it.' };
+    const perKg = Math.round(3 * p.kg);
+    if (p.age < 12) return { daily: 0, single: 0, basis: 'Caffeine isn\'t recommended for children under 12.' };
+    if (p.age < 18) { const d = Math.min(100, perKg); return { daily: d, single: d, basis: `Teens: 3 mg per kg of body weight a day, up to 100 mg.` }; }
+    if (p.pregnant) return { daily: 200, single: Math.min(200, perKg), basis: 'Pregnant or breastfeeding: up to 200 mg a day.' };
+    return { daily: 400, single: Math.min(200, perKg), basis: `Healthy adults: up to 400 mg a day, and up to ${Math.min(200, perKg)} mg at once (3 mg per kg).` };
+  }
+  let LIM = computeLimits(prof());
+  const dailyCap = () => Math.max(LIM.daily, 1);
   const SIM_SPEED = 1 / 1.2;          // sim minutes per real second
   const UNDO_MS = 4000;
 
@@ -512,6 +643,7 @@
     pour: null, undo: null, flash: null,
   };
 
+  const intakeAt = t => S.doses.reduce((c, d) => d.t <= t ? c + d.mg : c, 0);   // drunk so far today
   const levelAt = t => S.doses.reduce((c, d) => d.t <= t ? c + d.mg * Math.pow(.5, (t - d.t) / HALF) : c, 0);
   function clearTime() {
     if (levelAt(S.now) < SAFE) return null;
@@ -754,13 +886,45 @@
   /* ---------------- add sheet ---------------- */
   const sheet = $('sheet'), listScroll = $('listScroll');
   const addBtn = $('addBtn');
-  let sheetOpen = false, customOpen = false;
+  let sheetOpen = false, customOpen = false, page = 'list';
+  const PAGES = { onboard: $('onboardPage'), perm: $('permPage'), sync: $('syncPage'), result: $('resultPage'),
+                  list: $('listPage'), custom: $('customPage'), profile: $('profilePage') };
+  const ORDER = ['onboard', 'perm', 'sync', 'result', 'list', 'custom', 'profile'];
+  const SETUP = ['onboard', 'perm', 'sync', 'result'];
+  function showPage(n) {
+    // within setup, earlier steps tuck left; list → custom/profile push the list left
+    const inSetup = SETUP.includes(n);
+    for (const k in PAGES) {
+      const el = PAGES[k], on = k === n;
+      el.classList.toggle('active', on);
+      el.classList.toggle('behind', !on && ((inSetup && SETUP.includes(k) && ORDER.indexOf(k) < ORDER.indexOf(n)) || (!inSetup && k === 'list')));
+      el.setAttribute('aria-hidden', on ? 'false' : 'true');
+    }
+    page = n; customOpen = n === 'custom';
+  }
 
   function cellHTML(d) {
-    const a = Math.min(360, d.mg / SCALE * 360).toFixed(1);
+    const a = Math.min(360, d.mg / dailyCap() * 360).toFixed(1);
+    const used = intakeAt(S.now);
+    const flag = LIM.daily === 0 ? 'Not advised for you'
+      : d.mg > LIM.single ? `Over your ${LIM.single} mg single dose`
+      : used + d.mg > LIM.daily ? 'Puts you over today\'s limit' : '';
     return `<span class="ico" style="--a:${a}"></span>
       <span class="txt"><span class="name">${esc(d.name)}</span>
-      <span class="mg"><b>${d.mg} mg</b>${d.note ? ' · ' + esc(d.note) : ''}</span></span>`;
+      <span class="mg"><b>${d.mg} mg</b>${d.note ? ' · ' + esc(d.note) : ''}</span>${flag ? `<span class="flag">${flag}</span>` : ''}</span>`;
+  }
+  const HEART = '<svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 17s-6.5-3.9-6.5-8.6A3.6 3.6 0 0 1 10 6.3a3.6 3.6 0 0 1 6.5 2.1C16.5 13.1 10 17 10 17z" fill="#fff"/></svg>';
+  function limitRow() {
+    const wrap = $('limitRow'); wrap.replaceChildren();
+    const row = document.createElement('div'); row.className = 'row';
+    const b = document.createElement('button'); b.className = 'cell limit';
+    const used = Math.round(intakeAt(S.now));
+    b.innerHTML = `<span class="hk">${HEART}</span><span class="txt">` + (health.connected
+      ? `<span class="name">${used} of ${LIM.daily} mg today</span><span class="mg">Your limit · Apple Health</span>`
+      : `<span class="name">Your safe limit</span><span class="mg">Connect Apple Health</span>`) + '</span>';
+    b.setAttribute('aria-label', health.connected ? `${used} of ${LIM.daily} milligrams today. Open your limit.` : 'Set your safe limit with Apple Health');
+    b.addEventListener('click', () => { Sound.tap(); openProfile(); });
+    row.appendChild(b); wrap.appendChild(row);
   }
   function renderLists() {
     const yours = $('yours');
@@ -771,8 +935,10 @@
       yours.appendChild(h);
       custom.forEach((d, i) => yours.appendChild(makeRow(d, i)));
     }
+    limitRow();
     const pre = $('presets');
-    if (!pre.childElementCount) PRESETS.forEach(d => pre.appendChild(makeRow(d, -1)));
+    pre.replaceChildren();
+    PRESETS.forEach(d => pre.appendChild(makeRow(d, -1)));
     // stagger order for the bloom-in
     listScroll.querySelectorAll('.sheet-title, .section, .cell').forEach((el, i) => el.style.setProperty('--i', Math.min(i, 9)));
     fisheye();
@@ -845,15 +1011,15 @@
     if (idx !== lastRowTick && t - lastTickAt > 80) { lastRowTick = idx; lastTickAt = t; Sound.tick(); }
   }, { passive: true });
 
-  function openSheet() {
-    sheetOpen = true; customOpen = false;
-    sheet.classList.remove('custom');
+  function openSheet(startPage) {
+    sheetOpen = true;
+    showPage(typeof startPage === 'string' ? startPage : 'list');
     screen.classList.add('sheet-open');
     sheet.setAttribute('aria-hidden', 'false');
     $('face').setAttribute('aria-hidden', 'true');
     listScroll.scrollTop = 0;
     renderLists();
-    setTimeout(() => { fisheye(); const first = listScroll.querySelector('.cell'); first && first.focus({ preventScroll: true }); }, reduce ? 0 : 120);
+    setTimeout(() => { fisheye(); const first = PAGES[page].querySelector('button'); first && first.focus({ preventScroll: true }); }, reduce ? 0 : 120);
     buzz(6); Sound.open();
   }
   function closeSheet() {
@@ -869,7 +1035,7 @@
     closeSheet();
     setTimeout(() => pour(d.name, d.mg), reduce ? 0 : 480);
   }
-  addBtn.addEventListener('click', openSheet);
+  addBtn.addEventListener('click', () => openSheet('list'));
   $('closeBtn').addEventListener('click', closeSheet);
 
   /* custom amount */
@@ -882,13 +1048,13 @@
   }
   setCmg(cmg);
   function openCustom() {
-    customOpen = true; sheet.classList.add('custom');
+    showPage('custom');
     nameField.value = '';
     $('customScroll').scrollTop = 0;
     setTimeout(() => $('plus').focus({ preventScroll: true }), reduce ? 0 : 200);
   }
   $('moreBtn').addEventListener('click', () => { Sound.tap(); openCustom(); });
-  $('backBtn').addEventListener('click', () => { Sound.tap(); customOpen = false; sheet.classList.remove('custom'); $('moreBtn').focus({ preventScroll: true }); });
+  $('backBtn').addEventListener('click', () => { Sound.tap(); showPage('list'); $('moreBtn').focus({ preventScroll: true }); });
   $('minus').addEventListener('click', () => { setCmg(cmg - 5); buzz(4); Sound.step(cmg); });
   $('plus').addEventListener('click', () => { setCmg(cmg + 5); buzz(4); Sound.step(cmg); });
   saveToggle.addEventListener('click', () => { saveIt = !saveIt; saveToggle.setAttribute('aria-checked', saveIt); buzz(6); Sound.toggle(saveIt); });
@@ -918,7 +1084,7 @@
       if (steps) { crownAcc -= steps * 18; setCmg(cmg - steps * 5); buzz(3); Sound.step(cmg); }
       return;
     }
-    if (sheetOpen) { listScroll.scrollTop += delta; return; }  // crown = scroll list
+    if (sheetOpen) { const sc = PAGES[page].querySelector('.scroller'); if (sc) sc.scrollTop += delta; return; }  // crown = scroll the page
     const minutes = delta * .45;              // crown = time travel
     S.travel = Math.max(DAY0 - S.now, Math.min(DAY1 - S.now, S.travel + minutes));
     S.lastCrown = performance.now();
@@ -926,7 +1092,7 @@
     if (det !== lastDetent) { lastDetent = det; buzz(4); Sound.tick(); }
   }
   watch.addEventListener('wheel', e => {
-    if (sheetOpen && !customOpen && listScroll.contains(e.target)) { spinCrown(e.deltaY); return; } // native list scroll
+    if (sheetOpen && !customOpen && e.target.closest && e.target.closest('.scroller')) { spinCrown(e.deltaY); return; } // native scroll
     e.preventDefault();
     const k = e.deltaMode === 1 ? 16 : e.deltaMode === 2 ? 400 : 1;
     turnCrown(e.deltaY * k);
@@ -940,9 +1106,10 @@
 
   /* ---------------- keyboard ---------------- */
   screen.addEventListener('keydown', e => {
-    if (e.key === 'Escape' && sheetOpen) { e.preventDefault(); customOpen ? $('backBtn').click() : closeSheet(); return; }
+    if (e.key === 'Escape' && sheetOpen) { e.preventDefault(); (page === 'custom' || page === 'profile') ? (showPage('list'), $('moreBtn').focus()) : (SETUP.includes(page) ? finishSetup() : closeSheet()); return; }
     const up = e.key === 'ArrowUp', down = e.key === 'ArrowDown';
     if (!up && !down) return;
+    if (sheetOpen && page !== 'list' && !customOpen) return;
     if (sheetOpen && !customOpen) {           // move focus through the list
       const cells = [...listScroll.querySelectorAll('.cell')];
       const i = cells.indexOf(document.activeElement);
@@ -992,7 +1159,11 @@
       }
       if (f >= 1) { S.pour = null; pending = 0; commit(P.name, P.mg); }
     }
-    if (S.undo && now > S.undo.until) S.undo = null;
+    if (S.undo && now > S.undo.until) {
+      const u = S.undo; S.undo = null;
+      // only write to Health once the undo window has passed, so an undone drink never reaches the log
+      if (health.connected) S.flash = { until: now + 1600, key: 'saved' + u.id, html: '<span class="soft">Saved to</span> Apple Health' };
+    }
     if (S.flash && now > S.flash.until) S.flash = null;
     screen.classList.toggle('undoable', !!S.undo);
 
@@ -1011,13 +1182,20 @@
 
     const shown = Math.max(0, S.shown);
     setDigits(shown);
-    const isOver = base > SCALE && !travelling;
+    // the dial is your allowance: what you've drunk today against YOUR daily limit (it doesn't drain)
+    const intake = intakeAt(viewT) + pending;
+    if (reduce) { S.dShown = intake; S.dVel = 0; }
+    else { S.dVel = (S.dVel || 0) + (42 * (intake - (S.dShown || 0)) - 12.4 * (S.dVel || 0)) * dt; S.dShown = (S.dShown || 0) + S.dVel * dt; }
+    const overLimit = intakeAt(viewT) > LIM.daily;
+    const isOver = overLimit && !travelling;
     if (isOver && !S.wasOver) Sound.warn();
     S.wasOver = isOver;
-    screen.classList.toggle('over', base > SCALE);
-    theme(Math.pow(Math.min(1, Math.max(0, shown - 30) / 300), 1.15));
+    screen.classList.toggle('over', overLimit);
+    // mood follows how much is in you, relative to your limit
+    const D = Math.max(LIM.daily, 60);
+    theme(Math.pow(Math.min(1, Math.max(0, shown - .08 * D) / (.75 * D)), 1.15));
 
-    const A = Math.min(360, shown / SCALE * 360);
+    const A = LIM.daily === 0 ? (S.dShown > 1 ? 360 : 0) : Math.min(360, Math.max(0, S.dShown) / LIM.daily * 360);
     const g = wedgeGeom(A, reduce ? 0 : S.amp, S.phase);
     wedge.setAttribute('d', g.d); clip.setAttribute('d', g.d); edge.setAttribute('points', g.edge);
 
@@ -1098,15 +1276,22 @@
       setLine(S.flash.key, S.flash.html);
     } else if (S.undo) {
       setLine('undo' + S.undo.id, `<span class="tint">Tap dial to undo</span>`);
-    } else if (base > SCALE && !travelling) {
-      setLine('over', '<span class="warn">Over 400 mg today</span>');
+    } else if (isOver) {
+      setLine('over' + LIM.daily, LIM.daily === 0 ? '<span class="warn">Not advised under 12</span>' : `<span class="warn">Over your ${LIM.daily} mg limit</span>`);
     } else if (!S.doses.length) {
       setLine('empty', '<span class="soft">Tap</span> <span class="tint">+</span> <span class="soft">to log a drink</span>');
     } else {
-      const ct = clearTime();
-      setLine('clear' + (ct === null ? 'x' : Math.round(ct)),
-        ct === null ? '<span class="soft">All clear</span>'
-                    : `<span class="soft">Clear by</span> ${clock12(ct)} <span class="soft">${ampm(ct)}</span>`);
+      const ct = clearTime(), p = prof();
+      const bed = p ? p.bed : null;
+      if (ct !== null && bed !== null && ct > bed && S.now < bed) {
+        // with a sleep schedule from Health, say what will still be in you at bedtime
+        const left = Math.round(levelAt(bed) / 5) * 5;
+        setLine('bed' + left, `<span class="tint">${left} mg</span> <span class="soft">left at bedtime</span>`);
+      } else {
+        setLine('clear' + (ct === null ? 'x' : Math.round(ct)),
+          ct === null ? '<span class="soft">All clear</span>'
+                      : `<span class="soft">Clear by</span> ${clock12(ct)} <span class="soft">${ampm(ct)}</span>`);
+      }
     }
 
     if (travelling) {
@@ -1121,9 +1306,73 @@
     requestAnimationFrame(frame);
   }
 
+  /* ---------------- Apple Health: setup, profile, demo personas ---------------- */
+  const setLimitDigits = dotMatrix($('ldigits'), 3, { hideLead: true });
+  const setResultDigits = dotMatrix($('rdigits'), 3, { hideLead: true });
+  const fmtBed = m => `${clock12(m)} ${ampm(m)}`;
+  function applyHealth() {
+    LIM = computeLimits(prof());
+    saveHealth(); rebuild();
+    if (sheetOpen && page === 'list') renderLists();
+    renderProfile();
+  }
+  function renderProfile() {
+    const p = prof();
+    setLimitDigits(LIM.daily);
+    $('basis').textContent = LIM.basis;
+    $('profConnect').style.display = p ? 'none' : '';
+    $('kvWrap').style.display = p ? '' : 'none';
+    if (!p) return;
+    const rows = [
+      ['Age', '', `${p.age}`],
+      ['Weight', '', `${p.kg} kg`],
+      ['Pregnant or breastfeeding', '', p.pregnant ? 'Yes' : 'No'],
+      ['Bedtime', 'From your Sleep schedule', fmtBed(p.bed)],
+      ['Single dose', '3 mg per kg', `≤ ${LIM.single} mg`],
+      ['Height', 'Not used: guidance doesn\'t depend on it', `${p.cm} cm`, true],
+    ];
+    $('kv').innerHTML = rows.map(([k, sub, v, muted]) =>
+      `<div class="kv${muted ? ' muted' : ''}"><span class="k">${k}${sub ? `<small>${sub}</small>` : ''}</span><span class="v">${v}${k === 'Single dose' ? '' : '<i>HEALTH</i>'}</span></div>`).join('');
+    $('personas').innerHTML = Object.entries(PERSONAS).map(([key, x]) =>
+      `<button class="chip" data-k="${key}" aria-pressed="${key === health.persona}">${x.label}</button>`).join('');
+  }
+  $('personas').addEventListener('click', e => {
+    const b = e.target.closest('.chip'); if (!b) return;
+    health.persona = b.dataset.k; Sound.toggle(true); buzz(6); applyHealth();
+  });
+  function openProfile() { renderProfile(); $('profScroll').scrollTop = 0; showPage('profile'); setTimeout(() => $('profBack').focus({ preventScroll: true }), reduce ? 0 : 200); }
+  $('profBack').addEventListener('click', () => { Sound.tap(); renderLists(); showPage('list'); });
+  $('profConnect').addEventListener('click', () => { Sound.tap(); startPerm(); });
+
+  const PERM_READ = ['Date of Birth', 'Weight', 'Height', 'Pregnancy & Lactation', 'Sleep', 'Caffeine'];
+  $('permRead').innerHTML = PERM_READ.map(n => `<div class="perm-row"><span>${n}</span><button class="toggle" role="switch" aria-checked="true" aria-label="${n}" disabled></button></div>`).join('');
+  $('permWrite').innerHTML = '<div class="perm-row"><span>Caffeine</span><button class="toggle" role="switch" aria-checked="true" aria-label="Write caffeine" disabled></button></div>';
+  function startPerm() { $('permPage').querySelector('.scroller').scrollTop = 0; showPage('perm'); }
+  function finishSetup() { health.onboarded = true; saveHealth(); closeSheet(); }
+  $('onbConnect').addEventListener('click', () => { Sound.tap(); startPerm(); });
+  $('onbSkip').addEventListener('click', () => { Sound.tap(); finishSetup(); });
+  $('permDeny').addEventListener('click', () => { Sound.tap(); finishSetup(); });
+  $('permAllow').addEventListener('click', () => {
+    Sound.tap(); showPage('sync');
+    setTimeout(() => {
+      health.connected = true; applyHealth();
+      setResultDigits(LIM.daily);
+      $('resultBasis').textContent = LIM.basis;
+      showPage('result'); Sound.commit(); buzz(14);
+      setTimeout(() => $('resDone').focus({ preventScroll: true }), reduce ? 0 : 200);
+    }, reduce ? 300 : 1200);
+  });
+  $('resDone').addEventListener('click', () => { Sound.tap(); finishSetup(); });
+  $('healthBtn').addEventListener('click', () => {
+    health = { connected: false, persona: health.persona || 'adult', onboarded: false }; applyHealth();
+    if (sheetOpen) closeSheet();
+    setTimeout(() => openSheet('onboard'), sheetOpen ? 300 : 0);
+  });
+  renderProfile();
+
   /* ---------------- opening: the face wakes up, then the morning so far pours in ---------------- */
   const bootT0 = performance.now();
-  const lvlOf = mg => Math.min(1.5, mg / SCALE);
+  const lvlOf = mg => Math.min(1.5, mg / Math.max(LIM.daily, 60));
   const aurora = [...document.querySelectorAll('#aurora circle')].map((el, i) => {
     const r = +el.getAttribute('r');
     return { el, C: 2 * Math.PI * r, rot: [-90, 60, 200][i], spd: [22, -15, 31][i], len: [.24, .17, .11][i], br: [.7, 1.1, .9][i], op: [.85, .7, .75][i] };
@@ -1145,6 +1394,7 @@
     splash(false); bump(`+${mg}`);
     rebuild();
   }, reduce ? 0 : delay));
+  if (!health.onboarded) setTimeout(() => { if (!sheetOpen) openSheet('onboard'); }, reduce ? 400 : 2600);
   setTimeout(() => {
     const ct = clearTime();
     say(`${Math.round(levelAt(S.now))} milligrams of caffeine.` + (ct ? ` Clear by ${clock12(ct)} ${ampm(ct)}.` : ''));

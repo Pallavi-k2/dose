@@ -6,7 +6,7 @@ A caffeine clock for Apple Watch. One glanceable face, a two-tap way to log any 
 
 | Moment | What you do | What happens |
 |---|---|---|
-| **Glance** | Raise your wrist | Milligrams in your system, a wedge of soft caramel liquid in a dark glass dial, and *Clear by 6:48 PM* (when you'll drop under 50 mg). The face drifts from calm blue through dusty mauve to muted amber as caffeine rises. |
+| **Glance** | Raise your wrist | Milligrams in your system, a dial that fills toward *your* daily limit, and *Clear by 6:48 PM* (when you'll drop under 50 mg). The face drifts from calm blue through dusty mauve to muted amber as caffeine rises. |
 | **Log** | Tap **+** (top-left, the watchOS toolbar spot) | A drink list slides up. Each row shows its caffeine (e.g. *63 mg · 1 shot*) and a tiny dial previewing how much of the day it uses. Pick one and it pours into the face. |
 | **Your own drinks** | **Add more** at the end of the list | Name it (optional), set the mg with − / + or the crown, and keep *Save to list* on to have it appear under **Yours** next time. Swipe a saved drink left to delete it. |
 | **Undo** | Tap the dial within 4 seconds | A ring drains around the dial; a tap pours the drink back out. |
@@ -19,6 +19,28 @@ Why not log on a single tap? A watch gets bumped all day, so logging takes two d
 Built-in amounts are typical values (espresso 63 mg, 8 oz coffee 95 mg, 16 oz energy drink 160 mg, …). Real drinks vary, which is what *Add more* is for. Saved drinks live in the browser's local storage.
 
 On the web: click or tap, and scroll or drag the crown. Keyboard: Tab to the buttons; arrow keys turn the crown or move through the list; Esc goes back. Respects `prefers-reduced-motion`. The demo clock runs fast (about one minute every 1.2 s), and caffeine halves roughly every 5 hours.
+
+## Your safe limit (Apple Health)
+
+The limit adapts to you instead of assuming everyone's is 400 mg:
+
+| Who | Daily limit | Source |
+|---|---|---|
+| Healthy adults | 400 mg, and up to 200 mg at once (≈ 3 mg per kg) | EFSA 2015, FDA |
+| Pregnant or breastfeeding | 200 mg | EFSA |
+| Teens 12–17 | 3 mg per kg, up to 100 mg | EFSA, AACAP |
+| Under 12 | Not recommended | AAP |
+
+Height is read but deliberately not used, because none of this guidance depends on it. The app says so rather than pretending otherwise.
+
+- **First launch:** a *Connect Health* screen leads to a Health permission sheet (read date of birth, weight, height, pregnancy and lactation, sleep, and caffeine; write caffeine). It then shows *Your daily limit*.
+- **On the face:** the dial now shows **what you've drunk today against your limit**, so it fills up and doesn't drain. The number still shows what's in your body right now. The face's colour shifts relative to *your* limit, and the bottom line warns *Over your 200 mg limit*.
+- **Sleep:** with a sleep schedule from Health, the bottom line says what will still be in you at bedtime (*90 mg left at bedtime*) when you won't be clear in time.
+- **In the + list:** the first row shows *158 of 400 mg today* and opens your limit. Each drink is flagged if it's above your single-dose limit or would put you over today.
+- **Saved to Health:** drinks are written to Health's Caffeine log after the 4-second undo window, so an undone drink never reaches your log.
+- **Profile:** shows the values read from Health, with demo profiles (Adult, Pregnant, Teen, Lighter adult) so you can watch the limit change. *Health setup* under the watch replays the onboarding.
+
+This web prototype **simulates** Apple Health, since browsers can't read HealthKit. A watchOS build would use HealthKit's `dateOfBirth`, `bodyMass`, `height`, pregnancy and lactation, and sleep data, and read and write `dietaryCaffeine`. This is general guidance, not medical advice.
 
 ## Motion & sound
 
