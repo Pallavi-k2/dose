@@ -33,12 +33,15 @@ The limit adapts to you instead of assuming everyone's is 400 mg:
 
 Height is read but deliberately not used, because none of this guidance depends on it. The app says so rather than pretending otherwise.
 
-- **First launch:** a *Connect Health* screen leads to a Health permission sheet (read date of birth, weight, height, pregnancy and lactation, sleep, and caffeine; write caffeine). It then shows *Your daily limit*.
+- **First launch:** a short *Connect Apple Health* screen explains why the data is needed, then a permission sheet modelled on the system one. Every type starts **off**, with *Turn On All* and individual switches. It then shows *Your daily limit*.
+- **Partial consent is respected.** Anything not shared falls back to the standard assumption, the profile shows it as *Not shared*, and the limit explains what to share for a more personal one (*Share Date of Birth for a more personal limit*). Without Sleep there's no bedtime line, and without write access nothing is saved to Health.
 - **On the face:** the dial now shows **what you've drunk today against your limit**, so it fills up and doesn't drain. The number still shows what's in your body right now. The face's colour shifts relative to *your* limit, and the bottom line warns *Over your 200 mg limit*.
 - **Sleep:** with a sleep schedule from Health, the bottom line says what will still be in you at bedtime (*90 mg left at bedtime*) when you won't be clear in time.
 - **In the + list:** the first row shows *158 of 400 mg today* and opens your limit. Each drink is flagged if it's above your single-dose limit or would put you over today.
 - **Saved to Health:** drinks are written to Health's Caffeine log after the 4-second undo window, so an undone drink never reaches your log.
 - **Profile:** shows the values read from Health, with demo profiles (Adult, Pregnant, Teen, Lighter adult) so you can watch the limit change. *Health setup* under the watch replays the onboarding.
+
+Apple guidelines followed here: the app uses its own heart symbol and accent colour, never the Health app's icon or pink. It uses the system font (SF on Apple devices), sentence-case watchOS list labels, Title Case buttons (*Not Now*), and region-aware units (lb and ft/in for US English). It supports Reduce Transparency and Increase Contrast. Taps have no browser highlight flash or delay.
 
 This web prototype **simulates** Apple Health, since browsers can't read HealthKit. A watchOS build would use HealthKit's `dateOfBirth`, `bodyMass`, `height`, pregnancy and lactation, and sleep data, and read and write `dietaryCaffeine`. This is general guidance, not medical advice.
 
