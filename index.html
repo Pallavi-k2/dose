@@ -354,7 +354,20 @@
                   <linearGradient id="brew" gradientUnits="userSpaceOnUse" x1="50" y1="8" x2="92" y2="50">
                     <stop offset="0" stop-color="#d27434"/><stop offset=".55" stop-color="#ec9a3e"/><stop offset="1" stop-color="#ffd486"/>
                   </linearGradient>
+                  <!-- inner liquid: clipped to the dark core; nearly monochrome so the number stays crisp -->
+                  <clipPath id="coreClip"><circle cx="50" cy="50" r="39.5"/></clipPath>
+                  <linearGradient id="liqGrad" x1="0" y1="0" x2="0" y2="1">
+                    <stop offset="0" stop-color="#ffcf96" stop-opacity=".13"/>
+                    <stop offset=".35" stop-color="#c98a52" stop-opacity=".09"/>
+                    <stop offset="1" stop-color="#6b3a1a" stop-opacity=".07"/>
+                  </linearGradient>
+                  <filter id="liqSoft" x="-5%" y="-5%" width="110%" height="110%"><feGaussianBlur stdDeviation=".45"/></filter>
                 </defs>
+                <g clip-path="url(#coreClip)" filter="url(#liqSoft)">
+                  <path id="liqBack" fill="#e0a060" fill-opacity=".045"/>
+                  <path id="liqFront" fill="url(#liqGrad)"/>
+                  <path id="liqLine" fill="none" stroke="#ffd9a8" stroke-opacity=".2" stroke-width=".55" stroke-linecap="round"/>
+                </g>
                 <!-- today's intake against your limit -->
                 <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(0,0,0,.62)" stroke-width="6.6"/>
                 <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="3.6"/>
@@ -1119,6 +1132,20 @@
   const disc = $('disc');
   const arc = $('arc'), arcGlow = $('arcGlow'), arcOver = $('arcOver'), arcHead = $('arcHead'), arcHeadGlow = $('arcHeadGlow'), brew = $('brew');
   const AR = 42;
+  const liqBack = $('liqBack'), liqFront = $('liqFront'), liqLine = $('liqLine');
+  // a gentle liquid surface: two travelling waves plus a side-to-side slide (slosh) that decays after a pour
+  function surface(level, amp, tilt, t, off) {
+    const y0 = 89.5 - 79 * level;                   // core spans y ≈ 10.5 … 89.5
+    let d = '', line = '';
+    for (let i = 0; i <= 24; i++) {
+      const x = 10 + i * 80 / 24, u = (x - 50) / 40;
+      const y = y0 + tilt * u
+        + amp * (Math.sin(x * .16 + t * 1.3 + off) * .7 + Math.sin(x * .09 - t * .8 + off * 2) * .5);
+      const pt = `${x.toFixed(2)} ${y.toFixed(2)}`;
+      d += (i ? ' L' : 'M') + pt; line += (i ? ' L' : 'M') + pt;
+    }
+    return { fill: d + ' L90 92 L10 92 Z', line };
+  }
   const arcD = frac => {                    // clockwise from 12 o'clock
     if (frac <= .0005) return '';
     if (frac >= .9995) return `M50 ${50 - AR} A${AR} ${AR} 0 1 1 50 ${50 + AR} A${AR} ${AR} 0 1 1 50 ${50 - AR}`;
@@ -1206,6 +1233,14 @@
     arcHeadGlow.setAttribute('cx', hx2.toFixed(2)); arcHeadGlow.setAttribute('cy', hy2.toFixed(2));
     const headOn = f1 > .01 ? 1 : 0;
     const restless = Math.min(1, lvlOf(shown));
+    // inner liquid sits at the caffeine in you now (relative to your limit); it slides and settles after a pour
+    const lvlFill = Math.max(.04, Math.min(.92, shown / Math.max(LIM.daily, 60) * .92));
+    const tLiq = now / 1000;
+    const slosh = reduce ? 0 : S.amp;
+    const amp = reduce ? 0 : .45 + .35 * restless + slosh * 1.6;
+    const tilt = reduce ? 0 : slosh * 5.5 * Math.sin(tLiq * 3.1);
+    const fr1 = surface(lvlFill, amp, tilt, tLiq, 0), fr2 = surface(Math.min(.95, lvlFill + .015), amp * .8, -tilt * .6, tLiq * .85, 1.7);
+    liqFront.setAttribute('d', fr1.fill); liqLine.setAttribute('d', fr1.line); liqBack.setAttribute('d', fr2.fill);
     S.breath = (S.breath || 0) + dt * (reduce ? 0 : (1.1 + 4.5 * restless + (P ? 3 : 0)));   // calm ≈ slow breath, near limit ≈ quick
     const pulse = .5 + .5 * Math.sin(S.breath);
     arcHead.setAttribute('opacity', headOn);

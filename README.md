@@ -48,6 +48,7 @@ This web prototype **simulates** Apple Health, since browsers can't read HealthK
 
 Motion principles, borrowed from premium watch-face reels and audited against Emil Kowalski's animation skills and Apple's fluid-interface guidance:
 
+- **Quiet inner liquid.** The dark centre holds a barely tinted liquid whose level is the caffeine in you now, relative to your limit. Its surface drifts on two slow waves. After a pour it slides side to side and settles, and as caffeine wears off it slowly sinks. It stays nearly colourless so the number stays crisp.
 - **One ring, nothing extra.** The centre is just the number and the arc. The arc's glow breathes slowly when you're calm and faster as you near your limit, and it quickens while a drink pours.
 - **Dip & bloom, never slide.** Opening the drink list sinks and blurs the face away while the list comes into focus on an iOS sheet curve (380 ms in; closing snaps back in about 220 ms). Rows bloom in 30 ms apart.
 - **Staged wake-up.** On load, the glow blooms first, then the dial, the number, the text, and finally the controls.
