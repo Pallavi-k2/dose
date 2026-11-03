@@ -114,4 +114,4 @@ Turn on GitHub Pages (Settings → Pages → Deploy from branch → `main` / roo
   loading="lazy"></iframe>
 ```
 
-`?embed` makes the page background transparent so the watch sits on your site's own background.
+`?embed` hides the designer-only Restart button and caption, and keeps the black dotted background.
