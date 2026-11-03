@@ -1324,12 +1324,13 @@
       setLine('over' + -left, `<span class="warn">Over by ${-left} mg</span>`);
     } else if (left === 0) {
       setLine('reached', '<span class="warn">Daily limit reached</span>');
-    } else if (!today) {
-      setLine('fresh' + LIM.daily, `${LIM.daily} mg <span class="soft">left today</span>`);
-    } else if (left <= Math.max(50, LIM.daily * .15)) {
-      setLine('low' + left, `<span class="tint">Only ${left} mg left</span>`);
     } else {
-      setLine('left' + left + '/' + LIM.daily, `${left} mg <span class="soft">left of ${LIM.daily}</span>`);
+      // share of today's limit still available; floor so we never overstate what's left
+      const pct = Math.floor(left / LIM.daily * 100), pctTxt = pct < 1 ? '<1%' : `${pct}%`;
+      const low = left <= Math.max(50, LIM.daily * .15);
+      setLine((low ? 'low' : 'left') + pct + '/' + LIM.daily,
+        low ? `<span class="tint">${pctTxt} left</span> <span class="soft">of ${LIM.daily} mg</span>`
+            : `${pctTxt} <span class="soft">left of ${LIM.daily} mg</span>`);
     }
 
     if (false) {   // decay timeline retired

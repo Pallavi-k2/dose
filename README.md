@@ -6,7 +6,7 @@ A caffeine tracker for Apple Watch. One glanceable face shows what you've had to
 
 | Moment | What you do | What happens |
 |---|---|---|
-| **Glance** | Raise your wrist | The big dot-matrix number is what you've had today (*158 mg today*). The cold-brew arc fills toward *your* daily limit, and the bottom line says what's left (*242 mg left of 400*). The face drifts from calm blue through dusty mauve to amber as you use up the day's limit. |
+| **Glance** | Raise your wrist | The big dot-matrix number is what you've had today (*158 mg today*). The cold-brew arc fills toward *your* daily limit, and the bottom line says how much of your limit is left (*60% left of 400 mg*). The face drifts from calm blue through dusty mauve to amber as you use up the day's limit. |
 | **Log** | Tap **+** (top-left, the watchOS toolbar spot) | A drink list slides up. Each row shows its caffeine (e.g. *63 mg · 1 shot*) and a tiny dial previewing how much of the day it uses. Pick one and it pours into the face. |
 | **Your own drinks** | **Add more** at the end of the list | Name it (optional), set the mg with − / + or the crown, and keep *Save to list* on to have it appear under **Yours** next time. Swipe a saved drink left to delete it. |
 | **Undo** | Tap the dial within 4 seconds | A ring drains around the dial; a tap pours the drink back out. |
@@ -37,7 +37,7 @@ Height is read but deliberately not used, because none of this guidance depends 
 
 - **First launch:** a short *Connect Apple Health* screen explains why the data is needed, then a permission sheet modelled on the system one. Every type starts **off**, with *Turn On All* and individual switches. It then shows *Your daily limit*.
 - **Partial consent is respected.** Anything not shared falls back to the standard assumption, the profile shows it as *Not shared*, and the limit explains what to share for a more personal one (*Share Date of Birth for a more personal limit*). Without Sleep there's no bedtime line, and without write access nothing is saved to Health.
-- **On the face:** the arc shows **what you've drunk today against your limit**, so it fills up and doesn't drain. Go past the limit and a second, coral lap starts over the first, like an Activity ring. The number in the middle is the same measure: what you've had today. The bottom line gives what's left (*242 mg left of 400*), then *Only 40 mg left*, *Daily limit reached* or *Over by 108 mg*.
+- **On the face:** the arc shows **what you've drunk today against your limit**, so it fills up and doesn't drain. Go past the limit and a second, coral lap starts over the first, like an Activity ring. The number in the middle is the same measure: what you've had today. The bottom line gives the share of your limit that's left (*60% left of 400 mg*), then *Daily limit reached* or *Over by 108 mg*.
 - **In the + list:** the first row shows *158 of 400 mg today* and opens your limit. Each drink is flagged if it's above your single-dose limit or would put you over today.
 - **Saved to Health:** drinks are written to Health's Caffeine log after the 4-second undo window, so an undone drink never reaches your log.
 - **Profile:** shows the values read from Health, with demo profiles (Adult, Pregnant, Teen, Lighter adult) so you can watch the limit change. *Restart demo* under the watch clears today's drinks, saved drinks and the Health setup, keeps the sound setting, and replays everything from first launch.
@@ -78,9 +78,9 @@ One number, one meaning. The centre is what you've had (*158* / *mg today*), and
 
 | State | Bottom line |
 |---|---|
-| Nothing yet today | *400 mg left today* |
-| During the day | *242 mg left of 400* |
-| Close to the limit (≤ 15 % or 50 mg) | *Only 40 mg left* |
+| Nothing yet today | *100% left of 400 mg* |
+| During the day | *60% left of 400 mg* (rounded down, so it never overstates) |
+| Close to the limit (≤ 15 % or 50 mg) | *13% left of 400 mg*, highlighted |
 | At the limit | *Daily limit reached* |
 | Past it | *Over by 108 mg* |
 | Pouring / just logged | *+200 Cold brew* → *Tap to undo* → *Saved to Health* |
