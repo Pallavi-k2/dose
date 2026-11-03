@@ -114,4 +114,4 @@ Turn on GitHub Pages (Settings → Pages → Deploy from branch → `main` / roo
   loading="lazy"></iframe>
 ```
 
-`?embed` hides the designer-only Restart button and caption, and keeps the black dotted background.
+`?embed` trims the page padding; Restart, Sound and the instructions stay visible on the black dotted background.
