@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Half-Life</title>
-<meta name="description" content="Half-Life — a caffeine clock for Apple Watch. Log a drink, watch it pour in and decay; turn the crown to time-travel.">
+<meta name="description" content="Half-Life: a caffeine tracker for Apple Watch. Log a drink, see what you have had today and what is left of your limit.">
 <style>
   :root {
     --ease: cubic-bezier(.23,1,.32,1);          /* strong ease-out for UI (Emil) */
@@ -138,12 +138,11 @@
   .line { position: absolute; isolation: isolate; top: 103cqw; left: 8cqw; right: 8cqw; text-align: center; text-shadow: 0 0 .25cqw rgba(0,0,0,.9), 0 0 .7cqw rgba(0,0,0,.85), 0 0 1.6cqw rgba(0,0,0,.75), 0 0 3cqw rgba(0,0,0,.5); font-size: 5.4cqw; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; transition: opacity .25s, transform .25s; }
   .line .soft { color: rgba(255,255,255,.86); font-weight: 600; }
   .line .tint { color: #ffe7cf; }
-  .line .warn { color: #ffd0bb; }
+  .line .warn { color: #ffe7dc; }
   .line.swap { animation: swap 240ms var(--ease); }
   @keyframes swap { from { opacity: 0; transform: translateY(25%); filter: blur(2px); } }
-  .screen.travel .line { opacity: 0; transform: translateY(30%); }
   .mini { position: absolute; top: 100cqw; left: 9cqw; width: 82cqw; height: auto; overflow: visible; opacity: 0; transform: translateY(25%); transition: opacity 250ms var(--ease), transform 300ms var(--ease); pointer-events: none; }
-  .screen.travel .mini { opacity: 1; transform: none; }
+  .mini { display: none; }   /* decay timeline retired: the app tracks consumption only */
 
   .face { position: absolute; inset: 0; transition: transform 260ms var(--ease), filter 220ms var(--ease), opacity 220ms var(--ease); }
   .screen.sheet-open .face { transition-duration: 380ms, 320ms, 320ms; }
@@ -329,7 +328,7 @@
 
       <div class="case">
         <div class="screen boot" id="screen" tabindex="0" role="group"
-             aria-label="Caffeine clock. Use the add button to log a drink. Up and down arrows turn the crown to look ahead or back in time.">
+             aria-label="Caffeine tracker. Use the add button to log a drink. Up and down arrows turn the crown to review today's drinks.">
           <div class="clock boot-el" id="clock" style="--d:.7s">3:30</div>
 
           <!-- ============ face ============ -->
@@ -340,7 +339,7 @@
             </button>
             <div class="travel-label" id="travelLabel">Ahead</div>
 
-            <div class="unit boot-el" style="--d:.42s">mg caffeine</div>
+            <div class="unit boot-el" style="--d:.42s">mg today</div>
             <div class="digits boot-el" style="--d:.38s"><svg id="digits" aria-hidden="true"></svg></div>
 
             <div class="dial-wrap boot-el" id="dial" style="--d:.12s">
@@ -511,7 +510,7 @@
 
     <div class="caption">
       <span aria-hidden="true"><b>Tap +</b> to log a drink</span>
-      <span aria-hidden="true"><b>Scroll</b> or drag the crown to time-travel</span>
+      <span aria-hidden="true"><b>Scroll</b> or drag the crown to see today's drinks</span>
       <span aria-hidden="true"><b>Tap the dial</b> to undo</span>
 
     </div>
@@ -675,12 +674,15 @@
 
   let nextId = 1;
   const S = {
-    now: 930, travel: 0, lastCrown: -1e9,
+    now: 930, logIdx: null, lastCrown: -1e9,
     doses: [], shown: 0, vel: 0, amp: 0, phase: 0,
     pour: null, undo: null, flash: null,
   };
 
-  const intakeAt = t => S.doses.reduce((c, d) => d.t <= t ? c + d.mg : c, 0);   // drunk so far today
+  const dayOf = t => Math.floor(t / 1440);
+  // consumed today: the only number the app tracks. Wearing off doesn't give allowance back; it resets at midnight.
+  const intakeAt = t => S.doses.reduce((c, d) => d.t <= t && dayOf(d.t) === dayOf(t) ? c + d.mg : c, 0);
+  const todaysDoses = () => S.doses.filter(d => dayOf(d.t) === dayOf(S.now)).sort((a, b) => a.t - b.t);
   const levelAt = t => S.doses.reduce((c, d) => d.t <= t ? c + d.mg * Math.pow(.5, (t - d.t) / HALF) : c, 0);
   function clearTime() {
     if (levelAt(S.now) < SAFE) return null;
@@ -853,7 +855,7 @@
 
   /* ---------------- logging a drink ---------------- */
   function pour(name, mg) {
-    S.travel = 0; S.lastCrown = -1e9;
+    S.logIdx = null; S.lastCrown = -1e9;
     S.undo = null;
     if (reduce) { commit(name, mg); return; }
     S.pour = { name, mg, t0: performance.now(), dur: Math.min(1700, 520 + mg * 4.2), lastDrop: 0, nextBubble: 0 };
@@ -883,7 +885,7 @@
   dial.addEventListener('pointerdown', e => {
     if (e.button !== 0) return;
     tap = { x: e.clientX, y: e.clientY, t: performance.now() };
-    if (S.undo || Math.abs(S.travel) > 1) dial.classList.add('press');
+    if (S.undo || S.logIdx !== null) dial.classList.add('press');
   });
   dial.addEventListener('pointerup', e => {
     dial.classList.remove('press');
@@ -891,7 +893,7 @@
     const ok = Math.hypot(e.clientX - tap.x, e.clientY - tap.y) < 12 && performance.now() - tap.t < 600;
     tap = null;
     if (!ok) return;
-    if (Math.abs(S.travel) > 1) { S.lastCrown = -1e9; return; }
+    if (S.logIdx !== null) { S.logIdx = null; return; }
     if (S.undo) doUndo();
   });
   dial.addEventListener('pointerleave', () => { dial.classList.remove('press'); tap = null; });
@@ -1098,11 +1100,18 @@
       return;
     }
     if (sheetOpen) { const sc = PAGES[page].querySelector('.scroller'); if (sc) sc.scrollTop += delta; return; }  // crown = scroll the page
-    const minutes = delta * .45;              // crown = time travel
-    S.travel = Math.max(DAY0 - S.now, Math.min(DAY1 - S.now, S.travel + minutes));
+    // crown = step through today's drinks (down = earlier, up = back toward now)
+    const list = todaysDoses();
+    if (!list.length) return;
+    crownAcc += delta;
+    const steps = Math.trunc(crownAcc / 40);
+    if (!steps) return;
+    crownAcc -= steps * 40;
+    let i = S.logIdx === null ? list.length : S.logIdx;      // list.length = live
+    i = Math.max(0, Math.min(list.length, i - steps));
+    S.logIdx = i === list.length ? null : i;
     S.lastCrown = performance.now();
-    const det = Math.round(S.travel / 30);
-    if (det !== lastDetent) { lastDetent = det; buzz(4); Sound.tick(); }
+    buzz(4); Sound.tick();
   }
   watch.addEventListener('wheel', e => {
     if (sheetOpen && !customOpen && e.target.closest && e.target.closest('.scroller')) { spinCrown(e.deltaY); return; } // native scroll
@@ -1132,7 +1141,7 @@
     }
     e.preventDefault();
     if (sheetOpen && customOpen) { setCmg(cmg + (up ? 5 : -5) * (e.shiftKey ? 5 : 1)); return; }
-    turnCrown((down ? 1 : -1) * (e.shiftKey ? 133 : 33));
+    turnCrown((down ? 1 : -1) * 40);
   });
 
   /* ---------------- frame loop ---------------- */
@@ -1159,7 +1168,7 @@
     const a = frac * 2 * Math.PI, x = 50 + AR * Math.sin(a), y = 50 - AR * Math.cos(a);
     return `M50 ${50 - AR} A${AR} ${AR} 0 ${frac > .5 ? 1 : 0} 1 ${x.toFixed(2)} ${y.toFixed(2)}`;
   };
-  const undoRing = $('undoRing'), clock = $('clock'), travelLabel = $('travelLabel');
+  const undoRing = $('undoRing'), clock = $('clock'), travelLabel = $('travelLabel'), unitEl = document.querySelector('.unit');
   const UC = 2 * Math.PI * 46.5;
   let last = performance.now();
 
@@ -1167,14 +1176,12 @@
     const dt = Math.min(.05, (now - last) / 1000); last = now;
     S.now = Math.min(DAY1, S.now + dt * SIM_SPEED);
 
-    // crown springs back to "now" when it rests
-    if (now - S.lastCrown > 1600 && S.travel !== 0) {
-      S.travel += (0 - S.travel) * Math.min(1, dt * (reduce ? 60 : 5));
-      if (Math.abs(S.travel) < .5) S.travel = 0;
-    }
-    S.travel = Math.max(DAY0 - S.now, Math.min(DAY1 - S.now, S.travel));
-    const travelling = Math.abs(S.travel) > 1;
-    const viewT = S.now + S.travel;
+    // browsing today's drinks with the crown; returns to live after a few seconds of rest
+    const log = todaysDoses();
+    if (S.logIdx !== null && (S.logIdx >= log.length || now - S.lastCrown > 3200)) S.logIdx = null;
+    const viewDose = S.logIdx !== null ? log[S.logIdx] : null;
+    const travelling = !!viewDose;
+    const viewT = viewDose ? viewDose.t : S.now;
     screen.classList.toggle('travel', travelling);
 
     // pour in progress
@@ -1203,11 +1210,11 @@
     screen.classList.toggle('undoable', !!S.undo);
 
     // springy readout
-    const base = levelAt(viewT);
-    const target = base + pending;
+    const base = intakeAt(viewT);                         // consumed today (up to the drink being viewed)
+    const target = viewDose ? viewDose.mg : base + pending;
     if (reduce) { S.shown = target; S.vel = 0; }
     else {
-      const k = 42, c = 12.4;   // ~critically damped: glides in, no bounce
+      const k = viewDose ? 160 : 42, c = viewDose ? 25.3 : 12.4;   // critically damped; snappier while scrubbing the crown
       S.vel += (k * (target - S.shown) - c * S.vel) * dt;
       S.shown += S.vel * dt;
     }
@@ -1226,9 +1233,9 @@
     if (isOver && !S.wasOver) Sound.warn();
     S.wasOver = isOver;
     screen.classList.toggle('over', overLimit);
-    // mood follows how much is in you, relative to your limit
+    // mood follows how much of today's limit you've used
     const D = Math.max(LIM.daily, 60);
-    theme(Math.pow(Math.min(1, Math.max(0, shown - .08 * D) / (.75 * D)), 1.15));
+    theme(Math.pow(Math.min(1, Math.max(0, S.dShown - .08 * D) / (.85 * D)), 1.15));
 
     // the arc: today's intake against YOUR limit; a second, coral lap shows anything over it
     const fr = LIM.daily === 0 ? (S.dShown > 1 ? 1.0001 : 0) : Math.max(0, S.dShown) / LIM.daily;
@@ -1239,9 +1246,9 @@
     arcHead.setAttribute('cx', hx2.toFixed(2)); arcHead.setAttribute('cy', hy2.toFixed(2));
     arcHeadGlow.setAttribute('cx', hx2.toFixed(2)); arcHeadGlow.setAttribute('cy', hy2.toFixed(2));
     const headOn = f1 > .01 ? 1 : 0;
-    const restless = Math.min(1, lvlOf(shown));
+    const restless = Math.min(1, Math.max(0, S.dShown) / Math.max(LIM.daily, 60));
     // inner liquid sits at the caffeine in you now (relative to your limit); it slides and settles after a pour
-    const lvlFill = Math.max(.04, Math.min(.92, shown / Math.max(LIM.daily, 60) * .92));
+    const lvlFill = Math.max(.04, Math.min(.92, Math.max(0, S.dShown) / Math.max(LIM.daily, 60) * .92));   // follows the arc
     const tLiq = now / 1000;
     const slosh = reduce ? 0 : S.amp;
     const amp = reduce ? 0 : .45 + .35 * restless + slosh * 1.6;
@@ -1296,26 +1303,36 @@
       if (r.t >= 1) { r.el.remove(); rings.splice(i, 1); }
     }
 
-    clock.textContent = clock12(sheetOpen ? S.now : viewT);
-    travelLabel.textContent = S.travel > 0 ? 'Ahead' : 'Earlier';
+    clock.textContent = clock12(S.now);
+    if (viewDose) travelLabel.textContent = `${clock12(viewDose.t)} ${ampm(viewDose.t)}`;
+    const unitTxt = viewDose ? viewDose.name : 'mg today';
+    if (unitEl.textContent !== unitTxt) unitEl.textContent = unitTxt;
 
-    // bottom line — one short message at a time; no deadlines
-    const today = Math.round(intakeAt(S.now));
-    if (P) {
+    // bottom line: what's left of your limit (the big number already says what you've had)
+    const today = Math.round(intakeAt(S.now)), left = LIM.daily - today;
+    if (viewDose) {
+      setLine('log' + S.logIdx, `<span class="soft">Drink</span> ${S.logIdx + 1} <span class="soft">of ${log.length} today</span>`);
+    } else if (P) {
       setLine('pour' + P.t0, `<span class="tint">+${P.mg}</span> ${esc(P.name)}`);
     } else if (S.flash) {
       setLine(S.flash.key, S.flash.html);
     } else if (S.undo) {
       setLine('undo' + S.undo.id, `<span class="tint">Tap to undo</span>`);
-    } else if (isOver) {
-      setLine('over' + LIM.daily, LIM.daily === 0 ? '<span class="warn">Not advised</span>' : '<span class="warn">Over your limit</span>');
-    } else if (!S.doses.length) {
-      setLine('empty', '<span class="soft">Tap</span> <span class="tint">+</span> <span class="soft">to add</span>');
+    } else if (LIM.daily === 0) {
+      setLine('na', '<span class="warn">Not advised under 12</span>');
+    } else if (left < 0) {
+      setLine('over' + -left, `<span class="warn">Over by ${-left} mg</span>`);
+    } else if (left === 0) {
+      setLine('reached', '<span class="warn">Daily limit reached</span>');
+    } else if (!today) {
+      setLine('fresh' + LIM.daily, `${LIM.daily} mg <span class="soft">left today</span>`);
+    } else if (left <= Math.max(50, LIM.daily * .15)) {
+      setLine('low' + left, `<span class="tint">Only ${left} mg left</span>`);
     } else {
-      setLine('today' + today + '/' + LIM.daily, `${today} <span class="soft">/ ${LIM.daily} mg</span>`);
+      setLine('left' + left + '/' + LIM.daily, `${left} mg <span class="soft">left of ${LIM.daily}</span>`);
     }
 
-    if (travelling) {
+    if (false) {   // decay timeline retired
       const hx = xAt(viewT), hy = yAt(base);
       head.setAttribute('x1', hx); head.setAttribute('x2', hx); head.setAttribute('y1', hy); head.setAttribute('y2', BASE);
       headDot.setAttribute('cx', hx); headDot.setAttribute('cy', hy);
@@ -1435,7 +1452,7 @@
   if (!health.onboarded) setTimeout(() => { if (!sheetOpen) openSheet('onboard'); }, reduce ? 400 : 2600);
   setTimeout(() => {
     const ct = clearTime();
-    say(`${Math.round(levelAt(S.now))} milligrams of caffeine in you. ${Math.round(intakeAt(S.now))} of ${LIM.daily} milligrams today.`);
+    say(`${Math.round(intakeAt(S.now))} milligrams of caffeine today. ${Math.max(0, LIM.daily - Math.round(intakeAt(S.now)))} milligrams left of your ${LIM.daily} milligram limit.`);
   }, 1800);
 })();
 </script>

@@ -1,24 +1,26 @@
 # Half-Life
 
-A caffeine clock for Apple Watch. One glanceable face, a two-tap way to log any drink, and the Digital Crown to look ahead.
+A caffeine tracker for Apple Watch. One glanceable face shows what you've had today and what's left of your personal limit. Logging any drink takes two taps, and the Digital Crown reviews today's drinks.
 
 ## Interaction model
 
 | Moment | What you do | What happens |
 |---|---|---|
-| **Glance** | Raise your wrist | The caffeine in you now (dot-matrix *mg caffeine*) sits inside a glowing cold-brew arc that fills with what you've drunk today toward *your* limit, with *158 / 400 mg* underneath. The face drifts from calm blue through dusty mauve to amber as caffeine rises. |
+| **Glance** | Raise your wrist | The big dot-matrix number is what you've had today (*158 mg today*). The cold-brew arc fills toward *your* daily limit, and the bottom line says what's left (*242 mg left of 400*). The face drifts from calm blue through dusty mauve to amber as you use up the day's limit. |
 | **Log** | Tap **+** (top-left, the watchOS toolbar spot) | A drink list slides up. Each row shows its caffeine (e.g. *63 mg · 1 shot*) and a tiny dial previewing how much of the day it uses. Pick one and it pours into the face. |
 | **Your own drinks** | **Add more** at the end of the list | Name it (optional), set the mg with − / + or the crown, and keep *Save to list* on to have it appear under **Yours** next time. Swipe a saved drink left to delete it. |
 | **Undo** | Tap the dial within 4 seconds | A ring drains around the dial; a tap pours the drink back out. |
-| **Time-travel** | Turn the Digital Crown | Scrub ahead to watch caffeine decay, or back to see earlier. A mini timeline appears; let go and it springs back to now. |
+| **Review today** | Turn the Digital Crown | Step back through today's drinks, one per click. Each shows its time (*1:00 PM*), name and mg, *Drink 2 of 4 today*, and the arc and colours as they were at that moment. Rest for 3 seconds and it returns to now. |
 
-The crown always does the obvious thing for the current screen: time-travel on the face, scroll in the list, and change the number on the custom screen.
+The crown always does the obvious thing for the current screen: review today's drinks on the face, scroll in the list, and change the number on the custom screen.
 
 Why not log on a single tap? A watch gets bumped all day, so logging takes two deliberate taps (+, then a drink). The worst a stray tap can do is open the list.
 
 Built-in amounts are typical values (espresso 63 mg, 8 oz coffee 95 mg, 16 oz energy drink 160 mg, …). Real drinks vary, which is what *Add more* is for. Saved drinks live in the browser's local storage.
 
-On the web: click or tap, and scroll or drag the crown. Keyboard: Tab to the buttons; arrow keys turn the crown or move through the list; Esc goes back. Respects `prefers-reduced-motion`. The demo clock runs fast (about one minute every 1.2 s), and caffeine halves roughly every 5 hours.
+On the web: click or tap, and scroll or drag the crown. Keyboard: Tab to the buttons; arrow keys turn the crown or move through the list; Esc goes back. Respects `prefers-reduced-motion`. The demo clock runs fast (about one minute every 1.2 s).
+
+**What's tracked:** only what you consume. Daily limits are about intake, and caffeine wearing off doesn't give allowance back, so the app doesn't show an "in your body" estimate. The count resets at midnight.
 
 ## Your safe limit (Apple Health)
 
@@ -35,7 +37,7 @@ Height is read but deliberately not used, because none of this guidance depends 
 
 - **First launch:** a short *Connect Apple Health* screen explains why the data is needed, then a permission sheet modelled on the system one. Every type starts **off**, with *Turn On All* and individual switches. It then shows *Your daily limit*.
 - **Partial consent is respected.** Anything not shared falls back to the standard assumption, the profile shows it as *Not shared*, and the limit explains what to share for a more personal one (*Share Date of Birth for a more personal limit*). Without Sleep there's no bedtime line, and without write access nothing is saved to Health.
-- **On the face:** the arc shows **what you've drunk today against your limit**, so it fills up and doesn't drain. Go past the limit and a second, coral lap starts over the first, like an Activity ring. The number in the middle shows what's in your body right now. The bottom line reads *158 / 400 mg*, or *Over your limit*.
+- **On the face:** the arc shows **what you've drunk today against your limit**, so it fills up and doesn't drain. Go past the limit and a second, coral lap starts over the first, like an Activity ring. The number in the middle is the same measure: what you've had today. The bottom line gives what's left (*242 mg left of 400*), then *Only 40 mg left*, *Daily limit reached* or *Over by 108 mg*.
 - **In the + list:** the first row shows *158 of 400 mg today* and opens your limit. Each drink is flagged if it's above your single-dose limit or would put you over today.
 - **Saved to Health:** drinks are written to Health's Caffeine log after the 4-second undo window, so an undone drink never reaches your log.
 - **Profile:** shows the values read from Health, with demo profiles (Adult, Pregnant, Teen, Lighter adult) so you can watch the limit change. *Restart demo* under the watch clears today's drinks, saved drinks and the Health setup, keeps the sound setting, and replays everything from first launch.
@@ -48,7 +50,7 @@ This web prototype **simulates** Apple Health, since browsers can't read HealthK
 
 Motion principles, borrowed from premium watch-face reels and audited against Emil Kowalski's animation skills and Apple's fluid-interface guidance:
 
-- **Quiet inner liquid.** The dark centre holds a barely tinted liquid whose level is the caffeine in you now, relative to your limit. Its surface drifts on two slow waves. After a pour it slides side to side and settles, and as caffeine wears off it slowly sinks. It stays nearly colourless so the number stays crisp.
+- **Quiet inner liquid.** The dark centre holds a barely tinted liquid that rises with the arc as you use up your limit. Its surface drifts on two slow waves, and after a pour it slides side to side and settles. It stays nearly colourless so the number stays crisp.
 - **One ring, nothing extra.** The centre is just the number and the arc. The arc's glow breathes slowly when you're calm and faster as you near your limit, and it quickens while a drink pours.
 - **Dip & bloom, never slide.** Opening the drink list sinks and blurs the face away while the list comes into focus on an iOS sheet curve (380 ms in; closing snaps back in about 220 ms). Rows bloom in 30 ms apart.
 - **Staged wake-up.** On load, the glow blooms first, then the dial, the number, the text, and finally the controls.
@@ -72,7 +74,19 @@ There's a **Sound on/off** toggle under the watch, and the setting is remembered
 
 ## Words on the face
 
-As little text as possible, and it always names caffeine: *mg caffeine* under the number, *158 / 400 mg* for today, *+200 Cold brew* while pouring, *Tap to undo*, *Removed Cold brew*, *Saved to Health*, *Over your limit*, and *Tap + to add* when the day is empty. There are no deadlines on the face.
+One number, one meaning. The centre is what you've had (*158* / *mg today*), and the bottom line is always about your limit:
+
+| State | Bottom line |
+|---|---|
+| Nothing yet today | *400 mg left today* |
+| During the day | *242 mg left of 400* |
+| Close to the limit (≤ 15 % or 50 mg) | *Only 40 mg left* |
+| At the limit | *Daily limit reached* |
+| Past it | *Over by 108 mg* |
+| Pouring / just logged | *+200 Cold brew* → *Tap to undo* → *Saved to Health* |
+| Crown review | *Drink 2 of 4 today* (time top-left, drink name under the number) |
+
+There are no deadlines and no body-level estimates on the face.
 
 Contrast: nothing is layered over the gradient. Instead, the clock, the *Ahead/Earlier* label and the bottom line each check the colour actually behind them as the face shifts, and switch between white and deep ink to whichever reads better. A tight shadow hugs each letter. Worst case is 4.5:1 or better before counting that shadow. The rest of the UI was checked pair by pair: secondary greys are at least 6:1, switches that are off get a visible outline, and the arc keeps at least 3:1 against its dark track. The + sits on its own small dark button.
 
