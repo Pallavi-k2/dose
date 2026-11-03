@@ -6,7 +6,7 @@ A caffeine tracker for Apple Watch. One glanceable face shows what you've had to
 
 | Moment | What you do | What happens |
 |---|---|---|
-| **Glance** | Raise your wrist | The big dot-matrix number is what you've had today (*158 mg today*). A ring of 72 tick lines lights up toward *your* daily limit, and the bottom line says how much of your limit is left (*60% left of 400 mg*). The face drifts from calm blue through dusty mauve to amber as you use up the day's limit. |
+| **Glance** | Raise your wrist | The big dot-matrix number is what you've had today (*95 mg caffeine*). A ring of 72 tick lines lights up toward *your* daily limit, and the bottom line says how much of your limit is left (*76% left of 400 mg*). The face drifts from calm blue through dusty mauve to amber as you use up the day's limit. |
 | **Log** | Tap **+** (top-left, the watchOS toolbar spot) | A drink list slides up. Each row shows its caffeine (e.g. *63 mg · 1 shot*) and a tiny dial previewing how much of the day it uses. Pick one and it pours into the face. |
 | **Your own drinks** | **Add more** at the end of the list | Name it (optional), set the mg with − / + or the crown, and keep *Save to list* on to have it appear under **Yours** next time. Swipe a saved drink left to delete it. |
 | **Undo** | Tap the dial within 4 seconds | A ring drains around the dial; a tap pours the drink back out. |
@@ -74,7 +74,7 @@ There's a **Sound on/off** toggle under the watch, and the setting is remembered
 
 ## Words on the face
 
-One number, one meaning. The centre is what you've had (*158* / *mg today*), and the bottom line is always about your limit:
+One number, one meaning. The centre is what you've had (*95* / *mg caffeine*), and the bottom line is always about your limit:
 
 | State | Bottom line |
 |---|---|

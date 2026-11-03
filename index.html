@@ -336,7 +336,7 @@
             </button>
             <div class="travel-label" id="travelLabel">Ahead</div>
 
-            <div class="unit boot-el" style="--d:.42s">mg today</div>
+            <div class="unit boot-el" style="--d:.42s">mg caffeine</div>
             <div class="digits boot-el" style="--d:.38s"><svg id="digits" aria-hidden="true"></svg></div>
 
             <div class="dial-wrap boot-el" id="dial" style="--d:.12s">
@@ -1326,7 +1326,7 @@
 
     clock.textContent = clock12(S.now);
     if (viewDose) travelLabel.textContent = `${clock12(viewDose.t)} ${ampm(viewDose.t)}`;
-    const unitTxt = viewDose ? viewDose.name : 'mg today';
+    const unitTxt = viewDose ? viewDose.name : 'mg caffeine';
     if (unitEl.textContent !== unitTxt) unitEl.textContent = unitTxt;
 
     // bottom line: what's left of your limit (the big number already says what you've had)
@@ -1464,7 +1464,7 @@
   rebuild();
   renderLists();
   requestAnimationFrame(frame);
-  const seed = [[490, 'Coffee', 95, 350], [780, 'Espresso', 63, 1500]];
+  const seed = [[490, 'Coffee', 95, 350]];   // the demo opens with one morning coffee: 95 mg
   seed.forEach(([t, name, mg, delay]) => setTimeout(() => {
     S.doses.push({ id: nextId++, t, mg, name });
     S.amp = Math.min(1.6, S.amp + 1);
