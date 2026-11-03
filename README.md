@@ -2,6 +2,16 @@
 
 A caffeine tracker for Apple Watch. One glanceable face shows what you've had today and what's left of your personal limit. Logging any drink takes two taps, and the Digital Crown reviews today's drinks.
 
+| | |
+|---|---|
+| **Category** | Interaction Design |
+| **Year** | 2026 |
+| **Tools** | HTML, CSS, JavaScript (SVG, Web Audio API), Claude, GitHub |
+| **Platform** | Apple Watch (watchOS concept) |
+| **Tags** | Interaction Design · Motion Design · Prototyping · Wearables · Health & Wellness · Accessibility |
+
+Portfolio card copy is in [PROJECT.md](PROJECT.md).
+
 ## Interaction model
 
 | Moment | What you do | What happens |
