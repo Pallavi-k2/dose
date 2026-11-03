@@ -33,6 +33,9 @@
     overflow-x: hidden;
   }
   body.embed { padding: 8px; }   /* keeps the prototype's black dotted background inside the portfolio card */
+  /* In the portfolio pop-up the frame is short, so the instructions pin to the bottom over the band's faded end */
+  body.embed .stage { gap: 0; }
+  body.embed .caption { position: fixed; left: 12px; right: 12px; bottom: 14px; z-index: 40; gap: 6px 18px; }
   html { -webkit-tap-highlight-color: transparent; }
   button, input { font: inherit; color: inherit; }
   button, [role="switch"] { touch-action: manipulation; }
