@@ -129,11 +129,9 @@
   .screen.undoable .dial-wrap { cursor: pointer; }
   .dial-wrap.press { --s: .97; transition-duration: 120ms; }
   /* dark core: gives the digits and light rings something deep to glow against */
-  .disc { position: absolute; inset: 9%; border-radius: 50%;
-    background: radial-gradient(circle, color-mix(in srgb, #05040e, #0e0406 calc(var(--f) * 100%)) 0, color-mix(in srgb, rgba(5,4,14,.86), rgba(14,4,6,.86) calc(var(--f) * 100%)) 60%, rgba(0,0,0,0) 100%); }
+  .disc { position: absolute; inset: 2.5%; border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, #05040e, #0e0406 calc(var(--f) * 100%)) 0, color-mix(in srgb, rgba(5,4,14,.9), rgba(14,4,6,.9) calc(var(--f) * 100%)) 74%, color-mix(in srgb, rgba(5,4,14,.72), rgba(14,4,6,.72) calc(var(--f) * 100%)) 90%, rgba(0,0,0,0) 100%); }
   .fx { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
-  .screen.over #arcOver { animation: pulse 1.4s ease-in-out infinite; }
-  @keyframes pulse { 50% { opacity: .55; } }
 
   .line { position: absolute; isolation: isolate; top: 103cqw; left: 8cqw; right: 8cqw; text-align: center; text-shadow: 0 0 .25cqw rgba(0,0,0,.9), 0 0 .7cqw rgba(0,0,0,.85), 0 0 1.6cqw rgba(0,0,0,.75), 0 0 3cqw rgba(0,0,0,.5); font-size: 5.4cqw; font-weight: 700; letter-spacing: -.01em; white-space: nowrap; transition: opacity .25s, transform .25s; }
   .line .soft { color: rgba(255,255,255,.86); font-weight: 600; }
@@ -303,7 +301,6 @@
     .screen.sheet-open .sheet .sheet-title, .line.swap { animation: fadeOnly 200ms ease backwards !important; }
     .screen.sheet-open .face { transform: none; filter: brightness(.35); }
     .sheet, .screen.sheet-open .sheet { transform: none !important; filter: none !important; }
-    .screen.over #arcOver { animation: none; }
   }
   @keyframes fadeOnly { from { opacity: 0; } }
 </style>
@@ -367,7 +364,7 @@
                     <stop offset="0" stop-color="#d27434"/><stop offset=".55" stop-color="#ec9a3e"/><stop offset="1" stop-color="#ffd486"/>
                   </linearGradient>
                   <!-- inner liquid: clipped to the dark core; nearly monochrome so the number stays crisp -->
-                  <clipPath id="coreClip"><circle cx="50" cy="50" r="39.5"/></clipPath>
+                  <clipPath id="coreClip"><circle cx="50" cy="50" r="35"/></clipPath>
                   <linearGradient id="liqGrad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0" stop-color="#ffcf96" stop-opacity=".13"/>
                     <stop offset=".35" stop-color="#c98a52" stop-opacity=".09"/>
@@ -380,14 +377,9 @@
                   <path id="liqFront" fill="url(#liqGrad)"/>
                   <path id="liqLine" fill="none" stroke="#ffd9a8" stroke-opacity=".2" stroke-width=".55" stroke-linecap="round"/>
                 </g>
-                <!-- today's intake against your limit -->
-                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(0,0,0,.62)" stroke-width="6.6"/>
-                <circle cx="50" cy="50" r="42" fill="none" stroke="rgba(255,255,255,.16)" stroke-width="3.6"/>
-                <path id="arcGlow" fill="none" stroke="#f2a54a" stroke-width="7" stroke-linecap="round" opacity=".5" filter="url(#glow)"/>
-                <path id="arc" fill="none" stroke="url(#brew)" stroke-width="3.6" stroke-linecap="round"/>
-                <path id="arcOver" fill="none" stroke="#ff8a5c" stroke-width="3.6" stroke-linecap="round"/>
-                <circle id="arcHeadGlow" r="4.4" fill="#ffd486" opacity="0" filter="url(#glow)"/>
-                <circle id="arcHead" r="1.9" fill="#fff" opacity="0"/>
+                <!-- today's intake against your limit: a ring of tick lines that light up one by one -->
+                <g id="tickGlow" filter="url(#glow)" style="mix-blend-mode:screen"></g>
+                <g id="ticks" stroke-linecap="round"></g>
                 <circle id="undoRing" cx="50" cy="50" r="47.4" fill="none" stroke="#ffe0bd" stroke-width="1.1" stroke-linecap="round" transform="rotate(-90 50 50)" stroke-dasharray="0 400"/>
                 <g mask="url(#streamMask)"><g id="liquid" filter="url(#goo)" fill="url(#liquidFill)"></g></g>
                 <g id="drops"></g>
@@ -1146,7 +1138,19 @@
 
   /* ---------------- frame loop ---------------- */
   const disc = $('disc');
-  const arc = $('arc'), arcGlow = $('arcGlow'), arcOver = $('arcOver'), arcHead = $('arcHead'), arcHeadGlow = $('arcHeadGlow'), brew = $('brew');
+  // tick ring: N radial lines; each one fades in and grows as the fill passes it, and the leading few
+  // stand taller in a soft wave (smooth because the fill position is continuous, not per-tick)
+  const NT = 72, T_IN = 37.6, T_OUT = 41.2;
+  const BREW = ['#d27434', '#ec9a3e', '#ffd486'];                 // start of the day → leading edge
+  const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+  const lerpRgb = (a, b, t) => a.map((v, k) => Math.round(v + (b[k] - v) * t));
+  const brewAt = t => t < .55 ? lerpRgb(hexRgb(BREW[0]), hexRgb(BREW[1]), t / .55) : lerpRgb(hexRgb(BREW[1]), hexRgb(BREW[2]), (t - .55) / .45);
+  const DIM = [255, 255, 255], CORAL = hexRgb('#ff8a5c');
+  const tickEls = [], glowEls = [];
+  for (let i = 0; i < NT; i++) {
+    tickEls.push(mk('line', { 'stroke-width': 1.15 }, $('ticks')));
+    glowEls.push(mk('line', { 'stroke-width': 2.4, 'stroke-linecap': 'round' }, $('tickGlow')));
+  }
   const AR = 42;
   const liqBack = $('liqBack'), liqFront = $('liqFront'), liqLine = $('liqLine');
   // a gentle liquid surface: two travelling waves plus a side-to-side slide (slosh) that decays after a pour
@@ -1240,12 +1244,6 @@
     // the arc: today's intake against YOUR limit; a second, coral lap shows anything over it
     const fr = LIM.daily === 0 ? (S.dShown > 1 ? 1.0001 : 0) : Math.max(0, S.dShown) / LIM.daily;
     const f1 = Math.min(1, fr), f2 = Math.max(0, Math.min(1, fr - 1));
-    const d1 = arcD(f1); arc.setAttribute('d', d1); arcGlow.setAttribute('d', d1);
-    arcOver.setAttribute('d', arcD(f2));
-    const hf = f2 > 0 ? f2 : f1, ha = hf * 2 * Math.PI, hx2 = 50 + AR * Math.sin(ha), hy2 = 50 - AR * Math.cos(ha);
-    arcHead.setAttribute('cx', hx2.toFixed(2)); arcHead.setAttribute('cy', hy2.toFixed(2));
-    arcHeadGlow.setAttribute('cx', hx2.toFixed(2)); arcHeadGlow.setAttribute('cy', hy2.toFixed(2));
-    const headOn = f1 > .01 ? 1 : 0;
     const restless = Math.min(1, Math.max(0, S.dShown) / Math.max(LIM.daily, 60));
     // inner liquid sits at the caffeine in you now (relative to your limit); it slides and settles after a pour
     const lvlFill = Math.max(.04, Math.min(.92, Math.max(0, S.dShown) / Math.max(LIM.daily, 60) * .92));   // follows the arc
@@ -1257,12 +1255,35 @@
     liqFront.setAttribute('d', fr1.fill); liqLine.setAttribute('d', fr1.line); liqBack.setAttribute('d', fr2.fill);
     S.breath = (S.breath || 0) + dt * (reduce ? 0 : (1.1 + 4.5 * restless + (P ? 3 : 0)));   // calm ≈ slow breath, near limit ≈ quick
     const pulse = .5 + .5 * Math.sin(S.breath);
-    arcHead.setAttribute('opacity', headOn);
-    arcHeadGlow.setAttribute('opacity', (headOn * (.4 + .45 * pulse)).toFixed(3));
-    arcGlow.setAttribute('opacity', (.32 + (.18 + .2 * restless) * pulse).toFixed(3));
-    // gradient runs from the start of the arc toward its head, so the tip is always the brightest
-    const gx = 50 + AR * Math.sin(Math.min(f1, .5) * 2 * Math.PI), gy = 50 - AR * Math.cos(Math.min(f1, .5) * 2 * Math.PI);
-    brew.setAttribute('x2', (f1 > .5 ? hx2 : gx).toFixed(2)); brew.setAttribute('y2', (f1 > .5 ? hy2 : gy).toFixed(2));
+    // draw the tick ring
+    const pos = f1 * NT, pos2 = f2 * NT;                          // continuous fill position, in ticks
+    const waveOn = f1 > .002 && f1 < .999 ? 1 : (f2 > .002 && f2 < .999 ? 1 : 0);
+    const headAt = f2 > .002 ? pos2 : pos;
+    const waveH = (2.2 + 1.1 * pulse * (.4 + .6 * restless)) * waveOn;   // the leading wave breathes; faster near the limit
+    for (let i = 0; i < NT; i++) {
+      const lit = Math.max(0, Math.min(1, pos - i));              // 0 → 1 as the fill passes this tick
+      const over = Math.max(0, Math.min(1, pos2 - i));
+      const dh = i + .5 - headAt;
+      const wave = dh <= .5 ? Math.exp(-(dh * dh) / (2 * 2.2 * 2.2)) : Math.exp(-(dh * dh) / (2 * .6 * .6));  // long tail behind, sharp front
+      const a = (i / NT) * 2 * Math.PI, sx = Math.sin(a), cy = -Math.cos(a);
+      const rOut = T_OUT + .9 * Math.max(lit, over) + waveH * wave * Math.max(lit, over, .35);
+      const rIn = T_IN - .2 * lit;
+      const L = tickEls[i];
+      L.setAttribute('x1', (50 + sx * rIn).toFixed(2)); L.setAttribute('y1', (50 + cy * rIn).toFixed(2));
+      L.setAttribute('x2', (50 + sx * rOut).toFixed(2)); L.setAttribute('y2', (50 + cy * rOut).toFixed(2));
+      const lc = brewAt(pos > 0 ? Math.min(1, (i + 1) / Math.max(pos, 1)) : 0);
+      let c = lerpRgb(DIM, lc, lit);
+      if (over > 0) c = lerpRgb(c, CORAL, over);
+      L.setAttribute('stroke', `rgb(${c.join(',')})`);
+      L.setAttribute('stroke-opacity', (.24 + .76 * Math.max(lit, over)).toFixed(3));
+      const G = glowEls[i], gw = wave * Math.max(lit, over) * waveOn;
+      if (gw > .02) {
+        G.setAttribute('x1', (50 + sx * (rIn + 1)).toFixed(2)); G.setAttribute('y1', (50 + cy * (rIn + 1)).toFixed(2));
+        G.setAttribute('x2', (50 + sx * rOut).toFixed(2)); G.setAttribute('y2', (50 + cy * rOut).toFixed(2));
+        G.setAttribute('stroke', over > 0 ? '#ff8a5c' : '#ffc46a');
+        G.setAttribute('stroke-opacity', (gw * (.45 + .3 * pulse)).toFixed(3));
+      } else G.setAttribute('stroke-opacity', 0);
+    }
 
 
     const uf = S.undo ? Math.max(0, (S.undo.until - now) / UNDO_MS) : 0;
