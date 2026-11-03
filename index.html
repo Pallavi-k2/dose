@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Half-Life</title>
-<meta name="description" content="Half-Life: a caffeine tracker for Apple Watch. Log a drink, see what you have had today and what is left of your limit.">
+<title>Dose</title>
+<meta name="description" content="Dose: a caffeine tracker for Apple Watch. Log a drink, see what you have had today and what is left of your limit.">
 <style>
   :root {
     --ease: cubic-bezier(.23,1,.32,1);          /* strong ease-out for UI (Emil) */
@@ -468,7 +468,7 @@
             <div class="head-fade"></div>
             <div class="scroller" style="padding-top:15cqw">
               <div class="sheet-title">Health Access</div>
-              <p class="perm-sub">Half-Life uses this to set your daily caffeine limit and save your drinks.</p>
+              <p class="perm-sub">Dose uses this to set your daily caffeine limit and save your drinks.</p>
               <button class="turn-all" id="turnAll">Turn On All</button>
               <div class="section">Read</div>
               <div id="permRead"></div>
@@ -525,7 +525,7 @@
   /* ---------------- sound: everything synthesized with Web Audio, no files ---------------- */
   const Sound = (() => {
     let ctx = null, out = null, noiseBuf = null, on = true;
-    try { on = localStorage.getItem('halflife.sound') !== 'off'; } catch (e) {}
+    try { on = localStorage.getItem('dose.sound') !== 'off'; } catch (e) {}
     function ensure() {
       if (!on) return null;
       if (!ctx) {
@@ -573,7 +573,7 @@
     }
     return {
       get on() { return on; },
-      set(v) { on = v; try { localStorage.setItem('halflife.sound', v ? 'on' : 'off'); } catch (e) {} },
+      set(v) { on = v; try { localStorage.setItem('dose.sound', v ? 'on' : 'off'); } catch (e) {} },
       tick()   { noise({ dur: .014, vol: .03, f: 3200, q: 3 }); },        // crown detent
       tap()    { tone({ f: 520, f2: 400, dur: .07, vol: .06 }); },                                               // soft tock
       open()   { noise({ dur: .3, vol: .016, f: 500, f2: 2000, q: 1, attack: .1 }); },
@@ -611,7 +611,7 @@
     teen:     { label: 'Teen',          age: 16, kg: 52, cm: 163, pregnant: false, bed: 22 * 60 + 30 },
     light:    { label: 'Lighter adult', age: 24, kg: 48, cm: 155, pregnant: false, bed: 23 * 60 },
   };
-  const HSTORE = 'halflife.health.v1';
+  const HSTORE = 'dose.health.v1';
   const ALL_GRANTS = { dob: true, weight: true, height: true, pregnancy: true, sleep: true, caffeineRead: true, caffeineWrite: true };
   let health = { connected: false, persona: 'adult', onboarded: false, grants: { ...ALL_GRANTS } };
   try { Object.assign(health, JSON.parse(localStorage.getItem(HSTORE) || '{}')); } catch (e) {}
@@ -659,7 +659,7 @@
     { name: 'Green tea',         mg: 28,  note: '8 oz' },
     { name: 'Cola',              mg: 34,  note: '12 oz can' },
   ];
-  const STORE = 'halflife.custom.v1';
+  const STORE = 'dose.custom.v1';
   let custom = [];
   try { custom = JSON.parse(localStorage.getItem(STORE) || '[]').filter(d => d && d.name && d.mg > 0); } catch (e) { custom = []; }
   const saveCustom = () => { try { localStorage.setItem(STORE, JSON.stringify(custom)); } catch (e) {} };

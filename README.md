@@ -1,4 +1,4 @@
-# Half-Life
+# Dose
 
 A caffeine tracker for Apple Watch. One glanceable face shows what you've had today and what's left of your personal limit. Logging any drink takes two taps, and the Digital Crown reviews today's drinks.
 
@@ -108,8 +108,8 @@ Turn on GitHub Pages (Settings → Pages → Deploy from branch → `main` / roo
 
 ```html
 <iframe
-  src="https://pallavi-k2.github.io/half-life/?embed"
-  title="Half-Life caffeine clock for Apple Watch"
+  src="https://pallavi-k2.github.io/dose/?embed"
+  title="Dose, a caffeine tracker for Apple Watch"
   style="width:420px;height:820px;border:0;background:transparent"
   loading="lazy"></iframe>
 ```
