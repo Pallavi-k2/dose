@@ -500,7 +500,7 @@
       <span aria-hidden="true"><b>Tap +</b> to log a drink</span>
       <span aria-hidden="true"><b>Scroll</b> or drag the crown to time-travel</span>
       <span aria-hidden="true"><b>Tap the dial</b> to undo</span>
-      <button class="sound-btn" id="healthBtn"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M10 17s-6.5-3.9-6.5-8.6A3.6 3.6 0 0 1 10 6.3a3.6 3.6 0 0 1 6.5 2.1C16.5 13.1 10 17 10 17z" fill="#ff5f86"/></svg><span>Health setup</span></button>
+      <button class="sound-btn" id="restartBtn" aria-label="Restart demo from the beginning"><svg viewBox="0 0 20 20" aria-hidden="true"><path d="M4.5 10a5.5 5.5 0 1 0 1.7-4" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/><path d="M5.6 2.8v3.6h3.6" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Restart demo</span></button>
       <button class="sound-btn" id="soundBtn" aria-pressed="true">
         <svg viewBox="0 0 20 20" aria-hidden="true"><path d="M3 7.5h3l4-3.5v12l-4-3.5H3z" fill="currentColor"/>
           <path class="wave" d="M13 7a4 4 0 0 1 0 6M15.5 4.5a7.5 7.5 0 0 1 0 11" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/>
@@ -1398,10 +1398,10 @@
     }, reduce ? 300 : 1200);
   });
   $('resDone').addEventListener('click', () => { Sound.tap(); finishSetup(); });
-  $('healthBtn').addEventListener('click', () => {
-    health = { connected: false, persona: health.persona || 'adult', onboarded: false, grants: { ...ALL_GRANTS } }; applyHealth();
-    if (sheetOpen) closeSheet();
-    setTimeout(() => openSheet('onboard'), sheetOpen ? 300 : 0);
+  // Restart demo: wipe today's drinks, saved drinks and Health setup (keep the sound preference), then replay from launch
+  $('restartBtn').addEventListener('click', () => {
+    try { localStorage.removeItem(HSTORE); localStorage.removeItem(STORE); } catch (e) {}
+    location.reload();
   });
   renderProfile();
 

@@ -38,7 +38,7 @@ Height is read but deliberately not used, because none of this guidance depends 
 - **On the face:** the arc shows **what you've drunk today against your limit**, so it fills up and doesn't drain. Go past the limit and a second, coral lap starts over the first, like an Activity ring. The number in the middle shows what's in your body right now. The bottom line reads *158 / 400 mg*, or *Over your limit*.
 - **In the + list:** the first row shows *158 of 400 mg today* and opens your limit. Each drink is flagged if it's above your single-dose limit or would put you over today.
 - **Saved to Health:** drinks are written to Health's Caffeine log after the 4-second undo window, so an undone drink never reaches your log.
-- **Profile:** shows the values read from Health, with demo profiles (Adult, Pregnant, Teen, Lighter adult) so you can watch the limit change. *Health setup* under the watch replays the onboarding.
+- **Profile:** shows the values read from Health, with demo profiles (Adult, Pregnant, Teen, Lighter adult) so you can watch the limit change. *Restart demo* under the watch clears today's drinks, saved drinks and the Health setup, keeps the sound setting, and replays everything from first launch.
 
 Apple guidelines followed here: the app uses its own heart symbol and accent colour, never the Health app's icon or pink. It uses the system font (SF on Apple devices), sentence-case watchOS list labels, Title Case buttons (*Not Now*), and region-aware units (lb and ft/in for US English). It supports Reduce Transparency and Increase Contrast. Taps have no browser highlight flash or delay.
 
